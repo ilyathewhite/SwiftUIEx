@@ -5,6 +5,9 @@
 //  Created by Ilya Belenkiy on 11/8/21.
 //
 
+#if canImport(UIKit)
+
+import UIKit
 import SwiftUI
 
 public func menuItem(
@@ -133,3 +136,5 @@ public struct MenuButton: UIViewRepresentable {
     public func updateUIView(_ uiView: UIViewType, context: Context) {
     }
 }
+
+#endif

@@ -5,6 +5,8 @@
 //  Created by Ilya Belenkiy on 4/13/22.
 //
 
+#if canImport(UIKit)
+
 import Foundation
 import SwiftUI
 
@@ -30,3 +32,5 @@ public struct HiddenNavigationLink<Destination: View>: View {
         NavigationLink(isActive: $linkIsActive, destination: destination, label: { EmptyView() })
     }
 }
+
+#endif

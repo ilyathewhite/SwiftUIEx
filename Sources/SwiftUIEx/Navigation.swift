@@ -5,6 +5,8 @@
 //  Created by Ilya Belenkiy on 8/1/21.
 //
 
+#if canImport(UIKit)
+
 import Foundation
 import Combine
 import CombineEx
@@ -321,3 +323,5 @@ public struct NavigationRowLink<V: View, D: View>: View {
         }
     }
 }
+
+#endif

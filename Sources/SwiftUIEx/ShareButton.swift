@@ -5,6 +5,7 @@
 //  Created by Ilya Belenkiy on 9/25/22.
 //
 
+#if canImport(UIKit)
 import UIKit
 import SwiftUI
 
@@ -172,3 +173,5 @@ fileprivate class ShareSheetVC: UIActivityViewController {
         excludedActivityTypes = shareContext.excludedActivityTypes
     }
 }
+
+#endif
