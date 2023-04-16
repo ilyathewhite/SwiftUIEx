@@ -35,12 +35,12 @@ public struct NavigationRow<V: View>: View {
                 label
                 Spacer()
                 Image(systemName:"chevron.right")
-                    .foregroundColor(.systemGray3)
+                    .foregroundColor(.secondary)
                     .font(.body.weight(.semibold))
                     .padding(.leading)
             }
             .contentShape(Rectangle())
-            .foregroundColor(.label)
+            .foregroundColor(.primary)
         }
     }
 }
