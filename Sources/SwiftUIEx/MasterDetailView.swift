@@ -12,6 +12,29 @@ public protocol DetailView: View {
     var backAction: () -> Void { get set }
 }
 
+public struct DetailContainerView<Content: View>: DetailView {
+    public var showBackButton: Bool = false
+    public var backAction: () -> Void = {}
+    let content: Content
+
+    public init(@ViewBuilder content: () -> Content) {
+        self.content = content()
+    }
+    
+    public var body: some View {
+            content
+                .toolbar {
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        if showBackButton {
+                            Button(action: withAnimation { backAction }) {
+                                Image(systemName: "chevron.backward")
+                            }
+                        }
+                    }
+                }
+    }
+}
+
 public extension Animation {
     static let slide: Self = spring(response: 0.3, dampingFraction: 1)
 }
@@ -53,8 +76,10 @@ public struct MasterDetailView<Master: View, Detail: DetailView>: View {
                 }
                 
                 if showDetail || showAll {
+                    let detailIdealWidth = proxy.size.width - masterWidth
+                    let detailWidth = (showAll && (detailIdealWidth > 0)) ? detailIdealWidth : nil
                     detail
-                        .frame(width: showAll ? proxy.size.width - masterWidth : nil)
+                        .frame(width: detailWidth)
                         .frame(maxWidth: .infinity, alignment: .trailing)
                         .zIndex(1)
                         .transition(showAll ? .identity : .move(edge: .trailing))
