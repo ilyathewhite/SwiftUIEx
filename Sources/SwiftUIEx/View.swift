@@ -12,6 +12,10 @@ public extension View {
         f()
         return self
     }
+    
+    func topDivider() -> some View {
+        overlay(alignment: .top) { Divider() }
+    }
 }
 
 #if canImport(UIKit)

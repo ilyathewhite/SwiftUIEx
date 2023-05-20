@@ -30,17 +30,17 @@ public struct NavigationRow<V: View>: View {
     }
 
     public var body: some View {
-        Button(action: action) {
-            HStack {
-                label
-                Spacer()
-                Image(systemName:"chevron.right")
-                    .foregroundColor(.secondary)
-                    .font(.body.weight(.semibold))
-                    .padding(.leading)
-            }
-            .contentShape(Rectangle())
-            .foregroundColor(.primary)
+        HStack {
+            label
+            Spacer()
+            Image(systemName:"chevron.right")
+                .foregroundColor(.quaternaryLabel)
+                .font(.footnote.weight(.bold))
+                .padding(.leading)
         }
+        .contentShape(Rectangle())
+        .foregroundColor(.primary)
+        .onTapGesture(perform: action)
+        .frame(maxHeight: .infinity)
     }
 }
