@@ -160,6 +160,7 @@ public struct WrappingHStack<Data, Cell>: View where Data: RandomAccessCollectio
     }
 }
 
+/*
 private struct Container: View {
     struct Tag: Identifiable {
         let text: String
@@ -227,3 +228,4 @@ struct WrappingHStack_Previews: PreviewProvider {
         preview
     }
 }
+*/
