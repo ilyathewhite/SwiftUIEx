@@ -218,12 +218,12 @@ private struct Container: View {
     }
 }
 
-public struct WrappingHStack_Previews: PreviewProvider {
-    public static var preview: some View {
+struct WrappingHStack_Previews: PreviewProvider {
+    static var preview: some View {
          Container()
     }
 
-    public static var previews: some View {
+    static var previews: some View {
         preview
     }
 }
