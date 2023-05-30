@@ -9,9 +9,12 @@ import SwiftUI
 
 public protocol CollectionCell: View {
     associatedtype T: Identifiable
+    associatedtype Environment
+    
     var value: T { get }
     var selection: T? { get }
-    init(value: T, selection: Binding<T?>)
+    var env: Environment { get }
+    init(value: T, selection: Binding<T?>, env: Environment)
 }
 
 extension CollectionCell {
@@ -27,6 +30,8 @@ public struct Collection<Cell: CollectionCell>: View {
     public typealias T = Cell.T
     public let content: [T]
     public var selection: Binding<T?>
+    
+    public let cellEnv: Cell.Environment
 
     public let cellWidth: CGFloat?
     public let columnCount: Int?
@@ -38,6 +43,7 @@ public struct Collection<Cell: CollectionCell>: View {
     public init(
         content: [T],
         selection: Binding<T?>,
+        cellEnv: Cell.Environment,
         columnCount: Int? = nil,
         columnSpacing: CGFloat? = nil,
         rowSpacing: CGFloat? = nil,
@@ -45,6 +51,7 @@ public struct Collection<Cell: CollectionCell>: View {
     ) {
         self.content = content
         self.selection = selection
+        self.cellEnv = cellEnv
 
         self.cellWidth = cellWidth
         self.columnCount = columnCount
@@ -65,12 +72,32 @@ public struct Collection<Cell: CollectionCell>: View {
             gridItem = GridItem(.fixed(50))
         }
     }
+    
+    public init(
+        content: [T],
+        selection: Binding<T?>,
+        columnCount: Int? = nil,
+        columnSpacing: CGFloat? = nil,
+        rowSpacing: CGFloat? = nil,
+        cellWidth: CGFloat? = nil
+    )
+    where Cell.Environment == Void {
+        self.init(
+            content: content,
+            selection: selection,
+            cellEnv: (),
+            columnCount: columnCount,
+            columnSpacing: columnSpacing,
+            rowSpacing: rowSpacing,
+            cellWidth: cellWidth
+        )
+    }
 
     public var body: some View {
         let columns = Array(repeating: gridItem, count: columnCount ?? 1)
         LazyVGrid(columns: columns, spacing: rowSpacing) {
             ForEach(content) {
-                Cell(value: $0, selection: selection)
+                Cell(value: $0, selection: selection, env: cellEnv)
             }
         }
     }
