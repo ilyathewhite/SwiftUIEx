@@ -102,3 +102,53 @@ public struct Collection<Cell: CollectionCell>: View {
         }
     }
 }
+
+public struct HCollection<Cell: CollectionCell>: View {
+    enum ContentWidthTag {}
+    typealias ContentWidthKey = MeasurementKey<CGFloat, ContentWidthTag>
+
+    public typealias T = Cell.T
+    public let content: [T]
+    public var selection: Binding<T?>
+    
+    public let cellEnv: Cell.Environment
+
+    public let spacing: CGFloat?
+
+    public init(
+        content: [T],
+        selection: Binding<T?>,
+        cellEnv: Cell.Environment,
+        spacing: CGFloat? = nil
+    ) {
+        self.content = content
+        self.selection = selection
+        self.cellEnv = cellEnv
+        self.spacing = spacing
+    }
+    
+    public init(
+        content: [T],
+        selection: Binding<T?>,
+        columnCount: Int? = nil,
+        spacing: CGFloat? = nil
+    )
+    where Cell.Environment == Void {
+        self.init(
+            content: content,
+            selection: selection,
+            cellEnv: (),
+            spacing: spacing
+        )
+    }
+
+    public var body: some View {
+        ScrollView(.horizontal) {
+            LazyHStack(spacing: spacing) {
+                ForEach(content) {
+                    Cell(value: $0, selection: selection, env: cellEnv)
+                }
+            }
+        }
+    }
+}
