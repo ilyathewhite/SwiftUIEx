@@ -70,7 +70,11 @@ public extension View {
     func sizeMeasurement<M: AnyMeasurementKey>(_ keyType: M.Type) -> some View where M.Value == CGSize? {
         measurement(keyType, { $0.size })
     }
-
+    
+    func safeAreaInsetsMeasurement<M: AnyMeasurementKey>(_ keyType: M.Type) -> some View where M.Value == EdgeInsets? {
+        measurement(keyType, { $0.safeAreaInsets })
+    }
+    
     func measure<M: AnyMeasurementKey>(
         _ keyType: M.Type,
         _ eval: @escaping (GeometryProxy) -> M.Value,
@@ -97,5 +101,11 @@ public extension View {
     -> some View where M.Value == CGSize?
     {
         sizeMeasurement(keyType).onPreferenceChange(M.self, perform: save)
+    }
+    
+    func measureSafeAreaInsets<M: AnyMeasurementKey>(_ keyType: M.Type, save: @escaping (M.Value) -> Void)
+    -> some View where M.Value == EdgeInsets?
+    {
+        safeAreaInsetsMeasurement(keyType).onPreferenceChange(M.self, perform: save)
     }
 }
