@@ -42,7 +42,7 @@ public struct MaxMeasurementKey<T: Comparable, Tag>: AnyMeasurementKey {
     }
 }
 
-public struct Measurement<M: AnyMeasurementKey>: ViewModifier {
+struct GeometryMeasurement<M: AnyMeasurementKey>: ViewModifier {
     let eval: (GeometryProxy) -> M.Value
 
     public func body(content: Content) -> some View {
@@ -56,7 +56,7 @@ public struct Measurement<M: AnyMeasurementKey>: ViewModifier {
 
 public extension View {
     func measurement<M: AnyMeasurementKey>(_ keyType: M.Type, _ eval: @escaping (GeometryProxy) -> M.Value) -> some View {
-        modifier(Measurement<M>(eval: eval))
+        modifier(GeometryMeasurement<M>(eval: eval))
     }
 
     func widthMeasurement<M: AnyMeasurementKey>(_ keyType: M.Type) -> some View where M.Value == CGFloat? {
