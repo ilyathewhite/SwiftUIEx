@@ -114,17 +114,20 @@ public struct HCollection<Cell: CollectionCell>: View {
     public let cellEnv: Cell.Environment
 
     public let spacing: CGFloat?
+    public let edgeInsets: EdgeInsets
 
     public init(
         content: [T],
         selection: Binding<T?>,
         cellEnv: Cell.Environment,
-        spacing: CGFloat? = nil
+        spacing: CGFloat? = nil,
+        edgeInsets: EdgeInsets = .init()
     ) {
         self.content = content
         self.selection = selection
         self.cellEnv = cellEnv
         self.spacing = spacing
+        self.edgeInsets = edgeInsets
     }
     
     public init(
@@ -149,6 +152,7 @@ public struct HCollection<Cell: CollectionCell>: View {
                     Cell(value: $0, selection: selection, env: cellEnv)
                 }
             }
+            .padding(edgeInsets)
         }
     }
 }
