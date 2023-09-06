@@ -17,3 +17,14 @@ public extension EnvironmentValues {
         set { self[ForegroundColorKey.self] = newValue }
     }
 }
+
+private struct IsHiddenKey: EnvironmentKey {
+    static let defaultValue = false
+}
+
+public extension EnvironmentValues {
+    var isHidden: Bool {
+        get { self[IsHiddenKey.self] }
+        set { self[IsHiddenKey.self] = newValue }
+    }
+}
