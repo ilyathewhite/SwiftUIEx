@@ -11,6 +11,7 @@ public protocol CustomInputView: View {
     func updateValue(_ value: Value?)
     func updateTypedText(_ text: String)
     func clear()
+    func hide()
 }
 
 private class BasicTextField: UITextField {
@@ -25,7 +26,7 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
     
     @Binding var hasFocus: Bool
     let configure: (UITextField) -> Void
-    var inputView: V!
+    var inputView: () -> V
     
     @Environment(\.foregroundColor) var foregroundColor
 
@@ -35,7 +36,7 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
         
         init(parent: CustomInputTextField) {
             self.parent = parent
-            self.inputVC = .init(rootView: parent.inputView)
+            self.inputVC = .init(rootView: parent.inputView())
         }
         
         public func textFieldShouldClear(_ textField: UITextField) -> Bool {
@@ -70,13 +71,13 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
         typedText: Binding<String>,
         hasFocus: Binding<Bool>,
         configure: @escaping (UITextField) -> Void,
-        inputView: (_ value: Binding<T?>, _ typedText: Binding<String>) -> V
+        inputView: @escaping () -> V
     ) {
         self._value = value
         self._typedText = typedText
         self._hasFocus = hasFocus
         self.configure = configure
-        self.inputView = inputView(value, typedText)
+        self.inputView = inputView
     }
     
     public func makeCoordinator() -> Coordinator {
@@ -108,6 +109,7 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
     public func updateUIView(_ textField: UITextField, context: Context) {
         textField.text = typedText
         textField.textColor = .init(foregroundColor)
+        context.coordinator.inputVC.rootView = inputView()
 
         if !hasFocus {
             DispatchQueue.main.async {
