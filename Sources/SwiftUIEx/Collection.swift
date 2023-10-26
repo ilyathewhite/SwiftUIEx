@@ -95,7 +95,7 @@ public struct Collection<Cell: CollectionCell>: View {
 
     public var body: some View {
         let columns = Array(repeating: gridItem, count: columnCount ?? 1)
-        LazyVGrid(columns: columns, alignment: .leading, spacing: rowSpacing) {
+        LazyVGrid(columns: columns, alignment: .center, spacing: rowSpacing) {
             ForEach(content) {
                 Cell(value: $0, selection: selection, env: cellEnv)
             }
