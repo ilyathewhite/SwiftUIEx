@@ -76,4 +76,10 @@ public extension Color {
     static var tertiarySystemBackground: Self { .init(_uiColor: .tertiarySystemBackground) }
 }
 
+#else
+
+public extension Color {
+    static var quaternaryLabel: Self { .init(nsColor: .quaternaryLabelColor) }
+}
+
 #endif

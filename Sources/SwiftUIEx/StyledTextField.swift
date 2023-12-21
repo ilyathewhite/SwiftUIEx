@@ -4,6 +4,7 @@
 //  Created by Ilya Belenkiy on 8/11/23.
 //
 
+#if canImport(UIKit)
 import SwiftUI
 
 public struct StyledTextField: UIViewRepresentable {
@@ -91,3 +92,5 @@ public struct StyledTextField: UIViewRepresentable {
         }
     }
 }
+
+#endif

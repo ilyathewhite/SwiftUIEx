@@ -24,7 +24,7 @@ public struct DetailContainerView<Content: View>: DetailView {
     public var body: some View {
             content
                 .toolbar {
-                    ToolbarItem(placement: .navigationBarLeading) {
+                    ToolbarItem(placement: .navigation) {
                         if showBackButton {
                             Button(action: withAnimation { backAction }) {
                                 Image(systemName: "chevron.backward")

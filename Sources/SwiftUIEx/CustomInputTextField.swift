@@ -14,6 +14,8 @@ public protocol CustomInputView: View {
     func hide()
 }
 
+#if canImport(UIKit)
+
 private class BasicTextField: UITextField {
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         return false
@@ -123,3 +125,5 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
         }
     }
 }
+
+#endif
