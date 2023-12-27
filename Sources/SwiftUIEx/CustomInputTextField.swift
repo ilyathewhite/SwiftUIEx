@@ -26,7 +26,7 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
     @Binding var value: T?
     @Binding var typedText: String
     
-    @Binding var hasFocus: Bool
+    var hasFocus: FocusState<Bool>.Binding
     let configure: (UITextField) -> Void
     var inputView: () -> V
     
@@ -60,24 +60,24 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
         }
         
         public func textFieldDidBeginEditing(_ textField: UITextField) {
-            parent.hasFocus = true
+            parent.hasFocus.wrappedValue = true
         }
         
         public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
-            parent.hasFocus = false
+            parent.hasFocus.wrappedValue = false
         }
     }
 
     public init(
         value: Binding<T?>,
         typedText: Binding<String>,
-        hasFocus: Binding<Bool>,
+        hasFocus: FocusState<Bool>.Binding,
         configure: @escaping (UITextField) -> Void,
         inputView: @escaping () -> V
     ) {
         self._value = value
         self._typedText = typedText
-        self._hasFocus = hasFocus
+        self.hasFocus = hasFocus
         self.configure = configure
         self.inputView = inputView
     }
@@ -113,15 +113,11 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
         textField.textColor = .init(foregroundColor)
         context.coordinator.inputVC.rootView = inputView()
 
-        if !hasFocus {
-            DispatchQueue.main.async {
-                textField.resignFirstResponder()
-            }
-        }
-        else if !textField.isFirstResponder {
-            DispatchQueue.main.async {
-                textField.becomeFirstResponder()
-            }
+        // Don't resign first responder. This breaks the responder chain in SwiftUI and, as one of the side effects,
+        // breaks keyboard shortcuts.
+        
+        if hasFocus.wrappedValue && !textField.isFirstResponder {
+            textField.becomeFirstResponder()
         }
     }
 }

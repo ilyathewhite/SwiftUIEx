@@ -9,7 +9,7 @@ import SwiftUI
 
 public struct StyledTextField: UIViewRepresentable {
     @Binding var text: String
-    @Binding var hasFocus: Bool
+    var hasFocus: FocusState<Bool>.Binding
     let configure: (UITextField) -> Void
     let formatter: Formatter?
 
@@ -56,29 +56,32 @@ public struct StyledTextField: UIViewRepresentable {
                 else {
                     getValue(nil)
                 }
+                // workaround for mac catalyst; the caller must end focus
+                return false
             }
-            parent.hasFocus = false
-            return true
+            else {
+                return true
+            }
         }
         
         public func textFieldDidBeginEditing(_ textField: UITextField) {
-            parent.hasFocus = true
+            parent.hasFocus.wrappedValue = true
         }
         
         public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
-            parent.hasFocus = false
+            parent.hasFocus.wrappedValue = false
         }
     }
 
     public init(
         text: Binding<String>,
-        hasFocus: Binding<Bool>,
+        hasFocus: FocusState<Bool>.Binding,
         formatter: Formatter? = nil,
         getValue: ((AnyObject?) -> Void)? = nil,
         configure: @escaping (UITextField) -> Void
     ) {
         self._text = text
-        self._hasFocus = hasFocus
+        self.hasFocus = hasFocus
         self.formatter = formatter
         self.getValue = getValue
         self.configure = configure
@@ -106,16 +109,12 @@ public struct StyledTextField: UIViewRepresentable {
             textField.text = text
         }
         textField.textColor = .init(foregroundColor)
-
-        if !hasFocus {
-            DispatchQueue.main.async {
-                textField.resignFirstResponder()
-            }
-        }
-        else if !textField.isFirstResponder {
-            DispatchQueue.main.async {
-                textField.becomeFirstResponder()
-            }
+        
+        // Don't resign first responder. This breaks the responder chain in SwiftUI and, as one of the side effects,
+        // breaks keyboard shortcuts.
+        
+        if hasFocus.wrappedValue && !textField.isFirstResponder {
+            textField.becomeFirstResponder()
         }
     }
 }
