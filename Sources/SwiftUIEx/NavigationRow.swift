@@ -38,9 +38,9 @@ public struct NavigationRow<V: View>: View {
                 .font(.footnote.weight(.bold))
                 .padding(.leading)
         }
+        .frame(maxHeight: .infinity)
         .contentShape(Rectangle())
         .foregroundColor(.primary)
         .onTapGesture(perform: action)
-        .frame(maxHeight: .infinity)
     }
 }
