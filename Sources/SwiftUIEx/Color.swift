@@ -82,7 +82,7 @@ public extension Color {
         )
     }
     
-    #if canImport(UIKit)
+    #if os(iOS)
 
     static var systemGray2: Self { .init(_uiColor: .systemGray2) }
     static var systemGray3: Self { .init(_uiColor: .systemGray3) }
@@ -105,8 +105,9 @@ public extension Color {
     static var secondarySystemBackground: Self { .init(_uiColor: .secondarySystemBackground) }
     static var tertiarySystemBackground: Self { .init(_uiColor: .tertiarySystemBackground) }
     
-    #else
+    #endif
 
+    #if os(macOS)
     static var label: Self { .init(nsColor: .labelColor) }
     static var secondaryLabel: Self { .init(nsColor: .secondaryLabelColor) }
     static var tertiaryLabel: Self { .init(nsColor: .tertiaryLabelColor) }
@@ -119,6 +120,8 @@ public extension Color {
     static var systemGray3: Self { .init(R: 199, G: 199, B: 204, darkR: 72, darkG: 72, darkB: 74) }
     static var systemGray4: Self { .init(R: 209, G: 209, B: 214, darkR: 58, darkG: 58, darkB: 60) }
     static var systemGray5: Self { .init(R: 229, G: 229, B: 234, darkR: 44, darkG: 44, darkB: 46) }
+    
+    static var systemBackground: Self { .init(R: 255, G: 255, B: 255, darkR: 0, darkG: 0, darkB: 0) }
 
     #endif
 }

@@ -28,3 +28,14 @@ public extension EnvironmentValues {
         set { self[IsHiddenKey.self] = newValue }
     }
 }
+
+private struct WindowTitleKey: EnvironmentKey {
+    static let defaultValue: String? = nil
+}
+
+public extension EnvironmentValues {
+    var windowTitle: String? {
+        get { self[WindowTitleKey.self] }
+        set { self[WindowTitleKey.self] = newValue }
+    }
+}

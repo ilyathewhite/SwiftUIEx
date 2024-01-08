@@ -4,8 +4,14 @@
 //  Created by Ilya Belenkiy on 8/11/23.
 //
 
-#if canImport(UIKit)
 import SwiftUI
+#if os(iOS)
+public typealias OSFont = UIFont
+#else
+public typealias OSFont = NSFont
+#endif
+
+#if os(iOS)
 
 public struct StyledTextField: UIViewRepresentable {
     @Binding var text: String
@@ -114,6 +120,78 @@ public struct StyledTextField: UIViewRepresentable {
         // breaks keyboard shortcuts.
         
         if hasFocus.wrappedValue && !textField.isFirstResponder {
+            textField.becomeFirstResponder()
+        }
+    }
+}
+
+#else
+
+public struct StyledTextField: NSViewRepresentable {
+    @Binding var text: String
+    var hasFocus: FocusState<Bool>.Binding
+    let configure: (NSTextField) -> Void
+    let formatter: Formatter?
+
+    // Returns the value represented by the input string. If the formatter cannot create a value from the input,
+    // the callback is called with nil.
+    let getValue: ((AnyObject?) -> Void)?
+    
+    @Environment(\.foregroundColor) var foregroundColor
+
+    public class Coordinator: NSObject, NSTextFieldDelegate {
+        let parent: StyledTextField
+        
+        init(parent: StyledTextField) {
+            self.parent = parent
+        }
+        
+        public func textFieldShouldClear(_ textField: NSTextField) -> Bool {
+            parent.text.removeAll()
+            return true
+        }
+    }
+
+    public init(
+        text: Binding<String>,
+        hasFocus: FocusState<Bool>.Binding,
+        formatter: Formatter? = nil,
+        getValue: ((AnyObject?) -> Void)? = nil,
+        configure: @escaping (NSTextField) -> Void
+    ) {
+        self._text = text
+        self.hasFocus = hasFocus
+        self.formatter = formatter
+        self.getValue = getValue
+        self.configure = configure
+    }
+    
+    public func makeCoordinator() -> Coordinator {
+        .init(parent: self)
+    }
+    
+    public func makeNSView(context: Context) -> NSTextField {
+        let textField = NSTextField()
+        
+        // default settings
+        textField.delegate = context.coordinator
+        textField.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        
+        configure(textField)
+
+        return textField
+    }
+    
+    public func updateNSView(_ textField: NSTextField, context: Context) {
+        if textField.stringValue != text {
+            textField.stringValue = text
+        }
+        textField.textColor = .init(foregroundColor)
+        
+        // Don't resign first responder. This breaks the responder chain in SwiftUI and, as one of the side effects,
+        // breaks keyboard shortcuts.
+        
+        if hasFocus.wrappedValue && !(textField.window?.firstResponder == textField) {
             textField.becomeFirstResponder()
         }
     }

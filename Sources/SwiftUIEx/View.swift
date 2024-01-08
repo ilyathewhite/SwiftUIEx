@@ -18,7 +18,7 @@ public extension View {
     }
 }
 
-#if canImport(UIKit)
+#if os(iOS)
 
 public extension View {
     func dismissKeyboard() {
@@ -33,6 +33,16 @@ public extension View {
             }
         }
         return false
+    }
+}
+
+#endif
+
+#if os(macOS)
+
+public extension View {
+    func windowTitle(_ title: String) -> some View {
+        navigationTitle(title).environment(\.windowTitle, title)
     }
 }
 
