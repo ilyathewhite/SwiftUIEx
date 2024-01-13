@@ -142,7 +142,7 @@ public struct StyledTextField: NSViewRepresentable {
 
     public class Coordinator: NSObject, NSTextFieldDelegate {
         let parent: StyledTextField
-        var window: NSWindow?
+        weak var window: NSWindow?
         
         init(parent: StyledTextField) {
             self.parent = parent
