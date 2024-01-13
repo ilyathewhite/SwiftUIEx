@@ -148,9 +148,54 @@ public struct StyledTextField: NSViewRepresentable {
             self.parent = parent
         }
         
-        public func textFieldShouldClear(_ textField: NSTextField) -> Bool {
-            parent.text.removeAll()
-            return true
+        public func controlTextDidChange(_ obj: Notification) {
+            guard let fieldEditor = obj.userInfo?["NSFieldEditor"] as? NSTextView else { return }
+            let text = fieldEditor.string
+            if let formatter = parent.formatter {
+                var replacementText: NSString?
+                formatter.isPartialStringValid(text, newEditingString: &replacementText, errorDescription: nil)
+                fieldEditor.string =  replacementText as? String ?? text
+            }
+            parent.text = fieldEditor.string
+        }
+        
+        public func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
+            if let formatter = parent.formatter, let getValue = parent.getValue {
+                var value: AnyObject? = nil
+                formatter.getObjectValue(&value, for: fieldEditor.string, errorDescription: nil)
+                if let value, !(value is NSNull) {
+                    getValue(value)
+                    return true
+                }
+                else {
+                    getValue(nil)
+                    return false
+                }
+            }
+            else {
+                return true
+            }
+        }
+
+        public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+            switch commandSelector {
+            case #selector(NSStandardKeyBindingResponding.cancelOperation(_:)):
+                if textView.string.isEmpty {
+                    control.endEditing(textView)
+                }
+                else {
+                    parent.text = ""
+                    textView.string = ""
+                }
+                return true
+            case #selector(NSStandardKeyBindingResponding.insertNewline(_:)):
+                if self.control(control, textShouldEndEditing: textView) {
+                    control.endEditing(textView)
+                }
+                return true
+            default:
+                return false
+            }
         }
     }
 
@@ -222,10 +267,16 @@ public struct StyledTextField: NSViewRepresentable {
         // Don't resign first responder. This breaks the responder chain in SwiftUI and, as one of the side effects,
         // breaks keyboard shortcuts.
         
-        if hasFocus.wrappedValue && !(textField.window?.firstResponder == textField) {
+        guard hasFocus.wrappedValue else { return }
+        if !isInResponderChain(textField, chainStart:  textField.window?.firstResponder) {
             textField.becomeFirstResponder()
         }
     }
+}
+
+private func isInResponderChain(_ responder: NSResponder, chainStart: NSResponder?) -> Bool {
+    guard let chainStart else { return false }
+    return responder == chainStart ? true : isInResponderChain(responder, chainStart: chainStart.nextResponder)
 }
 
 #endif
