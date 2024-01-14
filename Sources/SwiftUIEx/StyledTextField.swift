@@ -15,7 +15,6 @@ public typealias OSFont = NSFont
 
 public struct StyledTextField: UIViewRepresentable {
     @Binding var text: String
-    var hasFocus: FocusState<Bool>.Binding
     let configure: (UITextField) -> Void
     let formatter: Formatter?
 
@@ -58,24 +57,16 @@ public struct StyledTextField: UIViewRepresentable {
                 formatter.getObjectValue(&value, for: text, errorDescription: nil)
                 if let value, !(value is NSNull) {
                     getValue(value)
+                    return true
                 }
                 else {
                     getValue(nil)
+                    return false
                 }
-                // workaround for mac catalyst; the caller must end focus
-                return false
             }
             else {
                 return true
             }
-        }
-        
-        public func textFieldDidBeginEditing(_ textField: UITextField) {
-            parent.hasFocus.wrappedValue = true
-        }
-        
-        public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
-            parent.hasFocus.wrappedValue = false
         }
     }
 
@@ -87,7 +78,6 @@ public struct StyledTextField: UIViewRepresentable {
         configure: @escaping (UITextField) -> Void
     ) {
         self._text = text
-        self.hasFocus = hasFocus
         self.formatter = formatter
         self.getValue = getValue
         self.configure = configure
@@ -115,13 +105,6 @@ public struct StyledTextField: UIViewRepresentable {
             textField.text = text
         }
         textField.textColor = .init(foregroundColor)
-        
-        // Don't resign first responder. This breaks the responder chain in SwiftUI and, as one of the side effects,
-        // breaks keyboard shortcuts.
-        
-        if hasFocus.wrappedValue && !textField.isFirstResponder {
-            textField.becomeFirstResponder()
-        }
     }
 }
 
@@ -129,7 +112,6 @@ public struct StyledTextField: UIViewRepresentable {
 
 public struct StyledTextField: NSViewRepresentable {
     @Binding var text: String
-    var hasFocus: FocusState<Bool>.Binding
     @Binding var windowIsKey: Bool
     let configure: (NSTextField) -> Void
     let formatter: Formatter?
@@ -208,7 +190,6 @@ public struct StyledTextField: NSViewRepresentable {
         configure: @escaping (NSTextField) -> Void
     ) {
         self._text = text
-        self.hasFocus = hasFocus
         self._windowIsKey = windowIsKey
         self.formatter = formatter
         self.getValue = getValue
@@ -263,20 +244,7 @@ public struct StyledTextField: NSViewRepresentable {
             textField.stringValue = text
         }
         textField.textColor = .init(foregroundColor)
-        
-        // Don't resign first responder. This breaks the responder chain in SwiftUI and, as one of the side effects,
-        // breaks keyboard shortcuts.
-        
-        guard hasFocus.wrappedValue else { return }
-        if !isInResponderChain(textField, chainStart:  textField.window?.firstResponder) {
-            textField.becomeFirstResponder()
-        }
     }
-}
-
-private func isInResponderChain(_ responder: NSResponder, chainStart: NSResponder?) -> Bool {
-    guard let chainStart else { return false }
-    return responder == chainStart ? true : isInResponderChain(responder, chainStart: chainStart.nextResponder)
 }
 
 #endif

@@ -26,7 +26,6 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
     @Binding var value: T?
     @Binding var typedText: String
     
-    var hasFocus: FocusState<Bool>.Binding
     let configure: (UITextField) -> Void
     var inputView: () -> V
     
@@ -58,26 +57,16 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
         public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
             return false
         }
-        
-        public func textFieldDidBeginEditing(_ textField: UITextField) {
-            parent.hasFocus.wrappedValue = true
-        }
-        
-        public func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
-            parent.hasFocus.wrappedValue = false
-        }
     }
 
     public init(
         value: Binding<T?>,
         typedText: Binding<String>,
-        hasFocus: FocusState<Bool>.Binding,
         configure: @escaping (UITextField) -> Void,
         inputView: @escaping () -> V
     ) {
         self._value = value
         self._typedText = typedText
-        self.hasFocus = hasFocus
         self.configure = configure
         self.inputView = inputView
     }
@@ -112,13 +101,6 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
         textField.text = typedText
         textField.textColor = .init(foregroundColor)
         context.coordinator.inputVC.rootView = inputView()
-
-        // Don't resign first responder. This breaks the responder chain in SwiftUI and, as one of the side effects,
-        // breaks keyboard shortcuts.
-        
-        if hasFocus.wrappedValue && !textField.isFirstResponder {
-            textField.becomeFirstResponder()
-        }
     }
 }
 
