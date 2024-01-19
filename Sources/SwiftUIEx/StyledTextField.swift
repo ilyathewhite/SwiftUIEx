@@ -72,7 +72,6 @@ public struct StyledTextField: UIViewRepresentable {
 
     public init(
         text: Binding<String>,
-        hasFocus: FocusState<Bool>.Binding,
         formatter: Formatter? = nil,
         getValue: ((AnyObject?) -> Void)? = nil,
         configure: @escaping (UITextField) -> Void
@@ -183,7 +182,6 @@ public struct StyledTextField: NSViewRepresentable {
 
     public init(
         text: Binding<String>,
-        hasFocus: FocusState<Bool>.Binding,
         windowIsKey: Binding<Bool>,
         formatter: Formatter? = nil,
         getValue: ((AnyObject?) -> Void)? = nil,
