@@ -39,3 +39,14 @@ public extension EnvironmentValues {
         set { self[WindowTitleKey.self] = newValue }
     }
 }
+
+private struct ExitActionKey: EnvironmentKey {
+    static let defaultValue: (() -> ())? = nil
+}
+
+public extension EnvironmentValues {
+    var exitAction: (() -> ())? {
+        get { self[ExitActionKey.self] }
+        set { self[ExitActionKey.self] = newValue }
+    }
+}
