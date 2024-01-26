@@ -146,16 +146,12 @@ public struct StyledTextField: NSViewRepresentable {
                 formatter.getObjectValue(&value, for: fieldEditor.string, errorDescription: nil)
                 if let value, !(value is NSNull) {
                     getValue(value)
-                    return true
                 }
                 else {
                     getValue(nil)
-                    return false
                 }
             }
-            else {
-                return true
-            }
+            return true
         }
 
         public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
