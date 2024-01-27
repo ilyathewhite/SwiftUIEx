@@ -111,7 +111,6 @@ public struct StyledTextField: UIViewRepresentable {
 
 public struct StyledTextField: NSViewRepresentable {
     @Binding var text: String
-    @Binding var windowIsKey: Bool
     let configure: (NSTextField) -> Void
     let formatter: Formatter?
 
@@ -123,7 +122,6 @@ public struct StyledTextField: NSViewRepresentable {
 
     public class Coordinator: NSObject, NSTextFieldDelegate {
         let parent: StyledTextField
-        weak var window: NSWindow?
         
         init(parent: StyledTextField) {
             self.parent = parent
@@ -178,13 +176,11 @@ public struct StyledTextField: NSViewRepresentable {
 
     public init(
         text: Binding<String>,
-        windowIsKey: Binding<Bool>,
         formatter: Formatter? = nil,
         getValue: ((AnyObject?) -> Void)? = nil,
         configure: @escaping (NSTextField) -> Void
     ) {
         self._text = text
-        self._windowIsKey = windowIsKey
         self.formatter = formatter
         self.getValue = getValue
         self.configure = configure
@@ -207,33 +203,6 @@ public struct StyledTextField: NSViewRepresentable {
     }
     
     public func updateNSView(_ textField: NSTextField, context: Context) {
-        if (context.coordinator.window == nil) && (textField.window != nil) {
-            context.coordinator.window = textField.window
-            if (textField.window?.isKeyWindow ?? false) {
-                DispatchQueue.main.async {
-                    context.coordinator.parent.windowIsKey = true
-                }
-            }
-            
-            NotificationCenter.default.addObserver(
-                forName: NSWindow.didBecomeKeyNotification,
-                object: textField.window,
-                queue: .main,
-                using: { _ in
-                    context.coordinator.parent.windowIsKey = true
-                }
-            )
-            
-            NotificationCenter.default.addObserver(
-                forName: NSWindow.didResignKeyNotification,
-                object: textField.window,
-                queue: .main,
-                using: { _ in
-                    context.coordinator.parent.windowIsKey = false
-                }
-            )
-        }
-        
         if textField.stringValue != text {
             textField.stringValue = text
         }
