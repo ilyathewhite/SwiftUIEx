@@ -33,6 +33,8 @@ public extension View {
     }
 }
 
+#endif
+
 private struct AncestorIsFocusedKey: EnvironmentKey {
     static let defaultValue = false
 }
@@ -52,5 +54,3 @@ public extension View {
             .focused(condition)
     }
 }
-
-#endif
