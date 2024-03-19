@@ -23,12 +23,9 @@ public class HostingView<Content>: UIView where Content: View {
     
     public override func didMoveToWindow() {
         super.didMoveToWindow()
-        guard let window else { return }
-        guard let rootVC = window.rootViewController else { return }
+        guard window != nil else { return }
         guard let view = vc.view else { return }
         view.backgroundColor = .clear
-
-        rootVC.addChild(vc)
         addSubview(view)
 
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -36,8 +33,6 @@ public class HostingView<Content>: UIView where Content: View {
         view.leadingAnchor.constraint(equalTo: leadingAnchor).isActive = true
         view.trailingAnchor.constraint(equalTo: trailingAnchor).isActive = true
         view.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
-
-        vc.didMove(toParent: rootVC)
     }
 }
     
