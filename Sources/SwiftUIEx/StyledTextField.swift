@@ -139,7 +139,11 @@ public struct StyledTextField: NSViewRepresentable {
         }
         
         public func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
-            if let formatter = parent.formatter, let getValue = parent.getValue {
+            guard let getValue = parent.getValue else {
+                return true
+            }
+            
+            if let formatter = parent.formatter {
                 var value: AnyObject? = nil
                 formatter.getObjectValue(&value, for: fieldEditor.string, errorDescription: nil)
                 if let value, !(value is NSNull) {
@@ -148,6 +152,9 @@ public struct StyledTextField: NSViewRepresentable {
                 else {
                     getValue(nil)
                 }
+            }
+            else {
+                getValue(fieldEditor.string as NSString)
             }
             return true
         }
