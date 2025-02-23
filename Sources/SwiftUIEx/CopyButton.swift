@@ -1,6 +1,5 @@
 //
-//  ShareButton.swift
-//  Rocket Insights
+//  CopyButton.swift
 //
 //  Created by Ilya Belenkiy on 9/25/22.
 //
@@ -15,30 +14,7 @@ public protocol TransferableEx: Transferable {
     var exportPreview: SharePreview<Never, Preview> { get }
 }
 
-#if os(iOS)
-public struct ShareOrCopyButton<T: TransferableEx>: View {
-    public let value: T?
-    
-    public init(_ value: T?) {
-        self.value = value
-    }
-
-    public var body: some View {
-        if let value {
-            ShareLink(item: value, preview: value.exportPreview) {
-                Image(systemName: "square.and.arrow.up")
-            }
-        }
-        else {
-            ShareLink(item: "")
-                .disabled(true)
-        }
-    }
-}
-#endif
-
-#if os(macOS)
-public struct ShareOrCopyButton<T: TransferableEx>: View {
+public struct CopyButton<T: TransferableEx>: View {
     let value: T?
     
     @State private var didCopy = false
@@ -53,9 +29,16 @@ public struct ShareOrCopyButton<T: TransferableEx>: View {
     
     func copy() {
         guard let value else { return }
+#if os(macOS)
         let pboard = NSPasteboard.general
         pboard.clearContents()
         pboard.writeObjects([value.pasteboardItem])
+#else
+        let pboard = UIPasteboard.general
+        let item = NSItemProvider()
+        item.register(value)
+        pboard.setItemProviders([item], localOnly: false, expirationDate: nil)
+#endif
         didCopy = true
         Task {
             try? await Task.sleep(for: .seconds(0.75))
@@ -73,4 +56,3 @@ public struct ShareOrCopyButton<T: TransferableEx>: View {
         .buttonStyle(.borderless)
     }
 }
-#endif
