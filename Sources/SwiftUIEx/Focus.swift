@@ -12,13 +12,21 @@ struct FocusableContainerHidingRing<V: View>: NSViewRepresentable {
     let content: V
     
     var wrappedContent: AnyView {
-        AnyView(content.focusable())
+        let focusableContent = content.focusable()
+        if #available(macOS 14, *) {
+            return AnyView(focusableContent.focusEffectDisabled())
+        }
+        else {
+            return AnyView(focusableContent)
+        }
     }
 
     public func makeNSView(context: Context) -> NSHostingView<AnyView> {
         let view = NSHostingView(rootView: wrappedContent)
-        view.focusRingType = .none
-        view.translatesAutoresizingMaskIntoConstraints = false
+        if #unavailable(macOS 14) {
+            view.focusRingType = .none
+            view.translatesAutoresizingMaskIntoConstraints = false
+        }
         return view
     }
     
