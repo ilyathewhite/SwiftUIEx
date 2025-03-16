@@ -52,7 +52,11 @@ public struct StyledTextField: UIViewRepresentable {
         }
         
         public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-            if let text = textField.text, let formatter = parent.formatter, let getValue = parent.getValue {
+            guard let formatter = parent.formatter else {
+                parent.getValue?(textField.text as? NSString) 
+                return true
+            }
+            if let text = textField.text, let getValue = parent.getValue {
                 var value: AnyObject? = nil
                 formatter.getObjectValue(&value, for: text, errorDescription: nil)
                 if let value, !(value is NSNull) {
