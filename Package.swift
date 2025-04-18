@@ -15,8 +15,8 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/ilyathewhite/CombineEx.git", .branch("main")),
-        .package(url: "https://github.com/ilyathewhite/FoundationEx.git", .branch("main")),
+        .package(url: "https://github.com/ilyathewhite/CombineEx.git", .upToNextMinor(from: "1.0.3")),
+        .package(url: "https://github.com/ilyathewhite/FoundationEx.git", .upToNextMinor(from: "1.0.3")),
         .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.5.0")
     ],
     targets: [
