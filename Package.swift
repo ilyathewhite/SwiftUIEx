@@ -15,20 +15,20 @@ let package = Package(
         )
     ],
     dependencies: [
-        .package(url: "https://github.com/ilyathewhite/CombineEx.git", .upToNextMinor(from: "1.0.3")),
-        .package(url: "https://github.com/ilyathewhite/FoundationEx.git", .upToNextMinor(from: "1.0.3")),
-        .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.5.0")
+        .package(url: "https://github.com/ilyathewhite/CombineEx.git", .upToNextMinor(from: "1.0.5"))
     ],
     targets: [
         .target(
             name: "SwiftUIEx",
-            dependencies: ["CombineEx", "FoundationEx", .product(name: "Tagged", package: "swift-tagged")],
-            swiftSettings: [.unsafeFlags([
-                "-Xfrontend",
-                "-warn-long-function-bodies=100",
-                "-Xfrontend",
-                "-warn-long-expression-type-checking=100"
-            ])]
+            dependencies: ["CombineEx"],
+            swiftSettings: [
+//                .unsafeFlags([
+//                    "-Xfrontend",
+//                    "-warn-long-function-bodies=100",
+//                    "-Xfrontend",
+//                    "-warn-long-expression-type-checking=100"
+//                ])
+            ]
         )
     ]
 )
