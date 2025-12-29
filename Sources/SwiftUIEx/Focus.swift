@@ -8,57 +8,10 @@ import SwiftUI
 
 #if os(macOS)
 
-struct FocusableContainerHidingRing<V: View>: NSViewRepresentable {
-    let content: V
-    
-    var wrappedContent: AnyView {
-        let focusableContent = content.focusable()
-        if #available(macOS 14, *) {
-            return AnyView(focusableContent.focusEffectDisabled())
-        }
-        else {
-            return AnyView(focusableContent)
-        }
-    }
-
-    public func makeNSView(context: Context) -> NSHostingView<AnyView> {
-        let view = NSHostingView(rootView: wrappedContent)
-        if #unavailable(macOS 14) {
-            view.focusRingType = .none
-            view.translatesAutoresizingMaskIntoConstraints = false
-        }
-        return view
-    }
-    
-    public func updateNSView(_ nsView: NSHostingView<AnyView>, context: Context) {
-        nsView.rootView = wrappedContent
-    }
-}
-
 public extension View {
     func focusableHidingRing() -> some View {
-        FocusableContainerHidingRing(content: self)
+        self.focusable().focusEffectDisabled()
     }
 }
 
 #endif
-
-private struct AncestorIsFocusedKey: EnvironmentKey {
-    static let defaultValue = false
-}
-
-public extension EnvironmentValues {
-    var ancestorIsFocused: Bool {
-        get { self[AncestorIsFocusedKey.self] }
-        set { self[AncestorIsFocusedKey.self] = newValue }
-    }
-}
-
-public extension View {
-    // focused() does the same thing, but it doesn't always work with focusableHidingRing(). Both focusableHidingRing
-    // and ancestorIsFocused should be removed when SwiftUIEx drops support for macOS 13.
-    func focusedEx(_ condition: FocusState<Bool>.Binding) -> some View {
-        self.environment(\.ancestorIsFocused, condition.wrappedValue)
-            .focused(condition)
-    }
-}
