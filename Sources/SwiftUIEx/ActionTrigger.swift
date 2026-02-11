@@ -30,7 +30,7 @@ public struct ActionTriggerModifier: ViewModifier {
     }
     
     public func body(content: Content) -> some View {
-        content.onChange(of: trigger) { _, _ in action() }
+        content.onChange(of: trigger) { _ in action() }
     }
 }
 

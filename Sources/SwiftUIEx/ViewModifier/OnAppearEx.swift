@@ -22,7 +22,7 @@ public struct OnAppearEx: ViewModifier {
                 action()
                 pendingOnAppearCount = 0
             }
-            .onChange(of: pendingOnAppearCount) { _, count in
+            .onChange(of: pendingOnAppearCount) { count in
                 guard count > 0 else { return }
                 if isConnected() {
                     action()
