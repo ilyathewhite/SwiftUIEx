@@ -6,6 +6,7 @@
 
 import SwiftUI
 
+@MainActor
 public protocol CustomInputView: View {
     associatedtype Value
     func updateValue(_ value: Value?)

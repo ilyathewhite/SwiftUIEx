@@ -35,7 +35,7 @@ public struct Animated<ContentView: View, T: Equatable>: View {
         VStack { // use VStack to work around a bug in iOS 14
             content(value)
         }
-        .onChange(of: binding) { value in
+        .onChange(of: binding) { _, value in
             withAnimation(animation(value)) {
                 self.value = value
             }
