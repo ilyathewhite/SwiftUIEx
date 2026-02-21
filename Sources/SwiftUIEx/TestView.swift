@@ -17,14 +17,14 @@ public class PassthroughView: UIView {
 
 public struct TestView: UIViewRepresentable {
     let testIdentifier: String
-    
+
     public func makeUIView(context: Context) -> PassthroughView {
         let view = PassthroughView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.accessibilityIdentifier = testIdentifier
         return view
     }
-    
+
     public func updateUIView(_ uiView: PassthroughView, context: Context) {
     }
 }
