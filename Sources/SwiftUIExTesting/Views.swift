@@ -5,15 +5,48 @@
 //  Created by Ilya Belenkiy on 2/16/26.
 //
 
+import Foundation
+
+#if canImport(UIKit)
 import UIKit
 
-@MainActor
-public func firstView(where predicate: (UIView) -> Bool) -> UIView? {
-    let windows = UIApplication.shared.connectedScenes
-        .compactMap({ $0 as? UIWindowScene })
-        .flatMap { $0.windows }
+typealias TestPlatformView = UIView
+typealias TestPlatformWindow = UIWindow
 
-    var queue: [UIView] = windows
+private func accessibilityIdentifier(for view: TestPlatformView) -> String? {
+    view.accessibilityIdentifier
+}
+
+@MainActor
+func firstSceneWindow() -> UIWindow? {
+    guard let windowScene = UIApplication.shared.connectedScenes
+        .compactMap({ $0 as? UIWindowScene })
+        .first,
+        let window = windowScene.windows.first
+    else {
+        return nil
+    }
+
+    return window
+}
+
+#elseif canImport(AppKit)
+import AppKit
+
+typealias TestPlatformView = NSView
+typealias TestPlatformWindow = NSWindow
+
+private func accessibilityIdentifier(for view: TestPlatformView) -> String? {
+    view.accessibilityIdentifier()
+}
+#endif
+
+@MainActor
+func firstView(
+    in rootView: TestPlatformView,
+    where predicate: (TestPlatformView) -> Bool
+) -> TestPlatformView? {
+    var queue: [TestPlatformView] = [rootView]
 
     while !queue.isEmpty {
         let current = queue.removeFirst()
@@ -27,24 +60,16 @@ public func firstView(where predicate: (UIView) -> Bool) -> UIView? {
 }
 
 @MainActor
-public func viewWithAccessibilityLabel(_ label: String) throws -> UIView {
-    if let view = firstView(where: { $0.accessibilityLabel == label }) {
-        return view
-    }
+func viewWithAccessibilityIdentifier(
+    _ identifier: String,
+    in rootView: TestPlatformView
+) throws -> TestPlatformView {
+    guard let view = firstView(
+        in: rootView,
+        where: { accessibilityIdentifier(for: $0) == identifier }
+    )
     else {
-        throw TestKit.TestingError.missingViewWithAccessibilityLabel(label)
+        throw TestKit.TestingError.missingViewWithAccessibilityIdentifier(identifier)
     }
-}
-
-@MainActor
-public func firstSceneWindow() throws -> UIWindow {
-    guard let windowScene = UIApplication.shared.connectedScenes
-        .compactMap({ $0 as? UIWindowScene })
-        .first,
-        let window = windowScene.windows.first
-    else {
-        throw TestKit.TestingError.missingFirstSceneWindow
-    }
-
-    return window
+    return view
 }

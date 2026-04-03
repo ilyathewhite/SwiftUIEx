@@ -6,7 +6,13 @@
 
 import SwiftUI
 
-#if os(iOS)
+#if canImport(UIKit)
+import UIKit
+#elseif canImport(AppKit)
+import AppKit
+#endif
+
+#if canImport(UIKit)
 
 public class PassthroughView: UIView {
     public override func hitTest(_ point: CGPoint, with event: UIEvent?) -> UIView? {
@@ -29,6 +35,31 @@ public struct TestView: UIViewRepresentable {
     }
 }
 
+#elseif canImport(AppKit)
+
+public class PassthroughView: NSView {
+    public override func hitTest(_ point: NSPoint) -> NSView? {
+        let view = super.hitTest(point)
+        return view == self ? nil : view
+    }
+}
+
+public struct TestView: NSViewRepresentable {
+    let testIdentifier: String
+
+    public func makeNSView(context: Context) -> PassthroughView {
+        let view = PassthroughView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.setAccessibilityIdentifier(testIdentifier)
+        return view
+    }
+
+    public func updateNSView(_ nsView: PassthroughView, context: Context) {
+    }
+}
+
+#endif
+
 public extension View {
     func testIdentifier(_ id: String) -> some View {
 #if DEBUG
@@ -38,5 +69,3 @@ public extension View {
 #endif
     }
 }
-
-#endif

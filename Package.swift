@@ -42,6 +42,14 @@ let package = Package(
             dependencies: [
                 .product(name: "Hammer", package: "Hammer", condition: .when(platforms: [.iOS]))
             ]
+        ),
+        .testTarget(
+            name: "SwiftUIExTestingContractTests",
+            dependencies: [
+                "SwiftUIEx",
+                "SwiftUIExTesting"
+            ],
+            path: "Tests/SwiftUIExTesting"
         )
     ]
 )

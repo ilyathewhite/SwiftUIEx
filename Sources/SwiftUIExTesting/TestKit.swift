@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import UIKit
 
 public enum TestKit {
     public enum AnimationType: String, Sendable {
@@ -39,8 +38,29 @@ public enum TestKit {
         }
     }
 
-    public enum TestingError: Error {
+    public enum TestingError: Error, Equatable, LocalizedError {
         case missingFirstSceneWindow
-        case missingViewWithAccessibilityLabel(String)
+        case missingWindow
+        case missingViewWithAccessibilityIdentifier(String)
+        case failedToCreateMouseEvent(String)
+        case failedToDeliverEvent(String)
+        case notImplemented(String)
+
+        public var errorDescription: String? {
+            switch self {
+            case .missingFirstSceneWindow:
+                return "Unable to find the first scene window."
+            case .missingWindow:
+                return "Unable to find a test window."
+            case let .missingViewWithAccessibilityIdentifier(identifier):
+                return "Unable to find a view with accessibility identifier '\(identifier)'."
+            case let .failedToCreateMouseEvent(eventType):
+                return "Unable to create a mouse event for '\(eventType)'."
+            case let .failedToDeliverEvent(eventType):
+                return "Unable to deliver the '\(eventType)' event."
+            case let .notImplemented(feature):
+                return "'\(feature)' is not implemented on this platform."
+            }
+        }
     }
 }
