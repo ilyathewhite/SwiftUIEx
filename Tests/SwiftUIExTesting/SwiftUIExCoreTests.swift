@@ -4,11 +4,16 @@
 //  Created by Codex on 4/11/26.
 //
 
-import AppKit
 import SwiftUI
 import Testing
 @testable import SwiftUIEx
 @testable import SwiftUIExTesting
+
+#if os(macOS)
+import AppKit
+#elseif os(iOS)
+import UIKit
+#endif
 
 @MainActor
 @Suite(.serialized)
@@ -175,11 +180,13 @@ struct SwiftUIExCoreTests {
         _ = Color.systemGray5
         _ = Color.systemBackground
 
-        var environment = EnvironmentValues()
-        environment.colorScheme = .light
-        _ = dynamicColor.resolve(in: environment)
-        environment.colorScheme = .dark
-        _ = dynamicColor.resolve(in: environment)
+        if #available(iOS 17, macOS 14, tvOS 17, *) {
+            var environment = EnvironmentValues()
+            environment.colorScheme = .light
+            _ = dynamicColor.resolve(in: environment)
+            environment.colorScheme = .dark
+            _ = dynamicColor.resolve(in: environment)
+        }
     }
 
     @Test
@@ -301,22 +308,6 @@ struct SwiftUIExCoreTests {
     }
 
     @Test
-    func copyButtonWritesTransferableValueToPasteboard() async {
-        let value = ClipboardPayload(text: "copied")
-        let button = CopyButton(value)
-        let emptyButton = CopyButton<ClipboardPayload>(nil)
-
-        #expect(button.value?.text == "copied")
-        #expect(button.icon == "square.on.square")
-
-        emptyButton.copy()
-        button.copy()
-
-        #expect(NSPasteboard.general.string(forType: .string) == "copied")
-        try? await Task.sleep(for: .seconds(0.8))
-    }
-
-    @Test
     func testKitErrorsAndDurationsAreUserReadable() {
         #expect(TestKit.AnimationType.present.duration == .seconds(1))
         #expect(TestKit.AnimationType.dismiss.duration == .seconds(1))
@@ -335,6 +326,243 @@ struct SwiftUIExCoreTests {
     @Test
     func finishAnimationWaitsForTheRequestedAnimationType() async {
         await finishAnimation(.swipe, "swipe")
+    }
+
+#if os(iOS)
+    @Test
+    func copyButtonWritesTransferableValueToPasteboardOnIOS() async {
+        UIPasteboard.general.items = []
+        let value = ClipboardPayload(text: "copied")
+        let button = CopyButton(value)
+        let emptyButton = CopyButton<ClipboardPayload>(nil)
+
+        #expect(button.value?.text == "copied")
+        #expect(button.icon == "square.on.square")
+
+        emptyButton.copy()
+        #expect(UIPasteboard.general.itemProviders.isEmpty)
+
+        button.copy()
+
+        #expect(!UIPasteboard.general.itemProviders.isEmpty)
+        try? await Task.sleep(for: .seconds(0.8))
+    }
+
+    @Test
+    func passthroughViewIgnoresHitsOnItselfButKeepsSubviewHitsOnIOS() {
+        let root = PassthroughView(frame: .init(x: 0, y: 0, width: 100, height: 100))
+        let child = UIView(frame: .init(x: 10, y: 10, width: 20, height: 20))
+
+        root.addSubview(child)
+
+        #expect(root.hitTest(.init(x: 50, y: 50), with: nil) == nil)
+        #expect(root.hitTest(.init(x: 15, y: 15), with: nil) === child)
+    }
+
+    @Test
+    func viewLookupFindsAccessibilityIdentifiersBreadthFirstOnIOS() throws {
+        let root = UIView()
+        let first = UIView()
+        let second = UIView()
+        let nested = UIView()
+        first.accessibilityIdentifier = "first"
+        second.accessibilityIdentifier = "second"
+        nested.accessibilityIdentifier = "nested"
+        root.addSubview(first)
+        root.addSubview(second)
+        first.addSubview(nested)
+
+        _ = firstSceneWindow()
+
+        #expect(firstView(in: root, where: { $0.accessibilityIdentifier == "nested" }) === nested)
+        #expect(try viewWithAccessibilityIdentifier("second", in: root) === second)
+        #expect(throwsMissingIdentifier {
+            _ = try viewWithAccessibilityIdentifier("missing", in: root)
+        })
+    }
+
+    @Test
+    func styledTextFieldCoordinatorUpdatesTextAndReportsCommittedValuesOnIOS() {
+        var text = "old"
+        var committedValues: [AnyObject?] = []
+        let field = StyledTextField(
+            text: Binding(get: { text }, set: { text = $0 }),
+            getValue: { committedValues.append($0) },
+            configure: { $0.placeholder = "Name" }
+        )
+        let coordinator = field.makeCoordinator()
+        let textField = UITextField()
+
+        textField.text = "old"
+        #expect(coordinator.textField(
+            textField,
+            shouldChangeCharactersIn: NSRange(location: 0, length: 3),
+            replacementString: "new"
+        ))
+        #expect(text == "new")
+
+        #expect(!coordinator.textField(
+            textField,
+            shouldChangeCharactersIn: NSRange(location: 99, length: 0),
+            replacementString: "ignored"
+        ))
+
+        textField.text = "committed"
+        #expect(coordinator.textFieldShouldReturn(textField))
+        #expect(committedValues.last as? NSString == "committed")
+
+        #expect(coordinator.textFieldShouldClear(textField))
+        #expect(text == "")
+    }
+
+    @Test
+    func styledTextFieldCoordinatorUsesFormatterForPartialAndCommittedTextOnIOS() {
+        var text = ""
+        var committedValues: [AnyObject?] = []
+        let formatter = DeterministicFormatter()
+        let field = StyledTextField(
+            text: Binding(get: { text }, set: { text = $0 }),
+            formatter: formatter,
+            getValue: { committedValues.append($0) },
+            configure: { _ in }
+        )
+        let coordinator = field.makeCoordinator()
+        let textField = UITextField()
+
+        textField.text = ""
+        #expect(coordinator.textField(
+            textField,
+            shouldChangeCharactersIn: NSRange(location: 0, length: 0),
+            replacementString: "replace"
+        ))
+        #expect(text == "123")
+
+        textField.text = "123"
+        #expect(coordinator.textFieldShouldReturn(textField))
+        #expect((committedValues.last as? NSNumber)?.intValue == 123)
+
+        textField.text = "abc"
+        #expect(!coordinator.textFieldShouldReturn(textField))
+        #expect(committedValues.count == 2)
+        #expect(committedValues[1] == nil)
+    }
+
+    @Test
+    func hostingViewAddsHostedContentWhenAttachedToWindow() {
+        let hostingView = HostingView(rootView: Text("Hosted"))
+        let window = UIWindow(frame: .init(x: 0, y: 0, width: 160, height: 120))
+
+        window.addSubview(hostingView)
+        window.makeKeyAndVisible()
+        if hostingView.subviews.isEmpty {
+            hostingView.didMoveToWindow()
+        }
+
+        #expect(hostingView.subviews.contains(hostingView.vc.view))
+        #expect(hostingView.vc.view.backgroundColor == .clear)
+        #expect(!hostingView.vc.view.translatesAutoresizingMaskIntoConstraints)
+        #expect(hostingView.constraints.count == 4)
+
+        window.isHidden = true
+    }
+
+    @Test
+    func windowReaderCapturesWindowTransitions() {
+        var capturedWindow: UIWindow?
+        let reader = WindowReader(window: Binding(get: {
+            capturedWindow
+        }, set: {
+            capturedWindow = $0
+        }))
+        let coordinator = reader.makeCoordinator()
+        let readerView = WindowReader.WindowReaderView(coordinator: coordinator)
+        let window = UIWindow(frame: .init(x: 0, y: 0, width: 80, height: 80))
+
+        window.addSubview(readerView)
+        window.makeKeyAndVisible()
+        readerView.didMoveToWindow()
+        #expect(capturedWindow === window)
+
+        readerView.removeFromSuperview()
+        readerView.didMoveToWindow()
+        #expect(capturedWindow == nil)
+
+        window.isHidden = true
+    }
+
+    @Test
+    func customInputTextFieldCoordinatorOwnsInputViewAndBlocksKeyboardEditing() {
+        let recorder = CoreCustomInputRecorder()
+        var value: String? = "old"
+        var typedText = "typed"
+        let field = CustomInputTextField(
+            value: Binding(get: { value }, set: { value = $0 }),
+            typedText: Binding(get: { typedText }, set: { typedText = $0 }),
+            configure: { $0.placeholder = "Custom" },
+            inputView: { CoreCustomInputView(recorder: recorder) }
+        )
+        let coordinator = field.makeCoordinator()
+        let textField = UITextField()
+
+        #expect(coordinator.inputVC.rootView.recorder === recorder)
+        #expect(coordinator.textFieldShouldClear(textField))
+        #expect(recorder.clearCount == 1)
+        #expect(coordinator.textField(
+            textField,
+            editMenuForCharactersIn: NSRange(location: 0, length: 0),
+            suggestedActions: []
+        ) == nil)
+        #expect(!coordinator.textField(
+            textField,
+            shouldChangeCharactersIn: NSRange(location: 0, length: 0),
+            replacementString: "x"
+        ))
+
+        textField.text = "abcdef"
+        let start = textField.beginningOfDocument
+        textField.selectedTextRange = textField.textRange(from: start, to: start)
+        coordinator.textFieldDidChangeSelection(textField)
+        #expect(textField.offset(from: textField.beginningOfDocument, to: textField.selectedTextRange?.start ?? start) == 6)
+    }
+
+    @Test
+    func iOSViewHelpersAndSystemColorsAreCallable() {
+        let window = UIWindow(frame: .init(x: 0, y: 0, width: 100, height: 100))
+        let text = Text("Helpers")
+
+        text.dismissKeyboard()
+
+        #expect(!text.isContextMenuVisible(window: nil))
+        #expect(!text.isContextMenuVisible(window: window))
+
+        _ = Color(_uiColor: .red)
+        _ = UIColor.blue.swiftUIcolor
+        _ = Color.systemGray6
+        _ = Color.placeholderText
+        _ = Color.systemFill
+        _ = Color.secondarySystemFill
+        _ = Color.tetriarySystemFill
+        _ = Color.quaternarySystemFill
+        _ = Color.secondarySystemBackground
+        _ = Color.tertiarySystemBackground
+    }
+#endif
+
+#if os(macOS)
+    @Test
+    func copyButtonWritesTransferableValueToPasteboard() async {
+        let value = ClipboardPayload(text: "copied")
+        let button = CopyButton(value)
+        let emptyButton = CopyButton<ClipboardPayload>(nil)
+
+        #expect(button.value?.text == "copied")
+        #expect(button.icon == "square.on.square")
+
+        emptyButton.copy()
+        button.copy()
+
+        #expect(NSPasteboard.general.string(forType: .string) == "copied")
+        try? await Task.sleep(for: .seconds(0.8))
     }
 
     @Test
@@ -435,6 +663,7 @@ struct SwiftUIExCoreTests {
         #expect(committedValues.count == 2)
         #expect(committedValues[1] == nil)
     }
+#endif
 }
 
 private final class DeterministicFormatter: Formatter {
@@ -470,6 +699,7 @@ private final class DeterministicFormatter: Formatter {
     }
 }
 
+#if os(macOS) || os(iOS)
 private struct ClipboardPayload: TransferableEx {
     let text: String
 
@@ -477,16 +707,47 @@ private struct ClipboardPayload: TransferableEx {
         ProxyRepresentation(exporting: \.text)
     }
 
+#if os(macOS)
     var pasteboardItem: NSPasteboardItem {
         let item = NSPasteboardItem()
         item.setString(text, forType: .string)
         return item
     }
+#endif
 
     var exportPreview: SharePreview<Never, String> {
         SharePreview("Clipboard Payload", icon: text)
     }
 }
+#endif
+
+#if os(iOS)
+@MainActor
+private final class CoreCustomInputRecorder {
+    var clearCount = 0
+}
+
+private struct CoreCustomInputView: CustomInputView {
+    let recorder: CoreCustomInputRecorder
+
+    func updateValue(_ value: String?) {
+    }
+
+    func updateTypedText(_ text: String) {
+    }
+
+    func clear() {
+        recorder.clearCount += 1
+    }
+
+    func hide() {
+    }
+
+    var body: some View {
+        Text("Custom Input")
+    }
+}
+#endif
 
 private struct DemoItem: Identifiable, Equatable {
     let id: Int
