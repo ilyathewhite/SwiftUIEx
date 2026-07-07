@@ -5,6 +5,23 @@ import Testing
 
 #if os(iOS)
 import UIKit
+
+private struct LabeledPlatformView: UIViewRepresentable {
+    let label: String
+    let identifier: String
+
+    func makeUIView(context: Context) -> UIView {
+        let view = UIView()
+        view.accessibilityLabel = label
+        view.accessibilityIdentifier = identifier
+        return view
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {
+        uiView.accessibilityLabel = label
+        uiView.accessibilityIdentifier = identifier
+    }
+}
 #endif
 
 @MainActor
@@ -111,6 +128,16 @@ struct EventGeneratorContractTests {
                 )
             )
         }
+    }
+
+    @Test
+    func viewLookupsFindIdentifierAndLabel() async throws {
+        let eventGenerator = try await EventGenerator(
+            view: LabeledPlatformView(label: "lookup.label", identifier: "lookup.identifier")
+        )
+
+        _ = try eventGenerator.viewWithIdentifier("lookup.identifier")
+        _ = try eventGenerator.viewWithAccessibilityLabel("lookup.label")
     }
     #elseif os(macOS)
     @Test

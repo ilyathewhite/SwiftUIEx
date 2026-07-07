@@ -21,8 +21,62 @@ public final class EventGenerator {
 }
 
 #if os(iOS)
+import CoreGraphics
 import Hammer
 import UIKit
+
+public typealias FingerIndex = Hammer.FingerIndex
+public typealias HammerLocatable = Hammer.HammerLocatable
+public typealias RelativeLocation = Hammer.RelativeLocation
+
+public extension EventGenerator {
+    func viewWithIdentifier(_ accessibilityIdentifier: String) throws -> UIView {
+        try backend.viewWithIdentifier(accessibilityIdentifier)
+    }
+
+    func viewWithAccessibilityLabel(_ label: String) throws -> UIView {
+        try backend.viewWithAccessibilityLabel(label)
+    }
+
+    func keyType(_ text: String, interval: TimeInterval = Hammer.EventGenerator.keyTypeInterval) throws {
+        try backend.keyType(text, interval: interval)
+    }
+
+    func fingerTap(
+        _ index: FingerIndex? = .automatic,
+        at location: HammerLocatable? = nil,
+        numberOfTimes tapCount: Int = 1,
+        interval: TimeInterval = Hammer.EventGenerator.multiTapInterval
+    ) throws {
+        try backend.fingerTap(index, at: location, numberOfTimes: tapCount, interval: interval)
+    }
+
+    func fingerDown(_ index: FingerIndex? = .automatic, at location: HammerLocatable? = nil) throws {
+        try backend.fingerDown(index, at: location)
+    }
+
+    func fingerMove(
+        _ indices: [FingerIndex?] = .automatic,
+        translationX x: CGFloat,
+        y: CGFloat,
+        duration: TimeInterval
+    ) throws {
+        try backend.fingerMove(indices, translationX: x, y: y, duration: duration)
+    }
+
+    func fingerUp(_ index: FingerIndex?) throws {
+        try backend.fingerUp(index)
+    }
+
+    func fingerDrag(
+        _ index: FingerIndex? = .automatic,
+        from startPoint: HammerLocatable,
+        to endPoint: HammerLocatable,
+        duration: TimeInterval
+    ) throws {
+        try backend.fingerDrag(index, from: startPoint, to: endPoint, duration: duration)
+    }
+}
 
 @MainActor
 private final class PlatformEventGenerator {
@@ -63,6 +117,58 @@ private final class PlatformEventGenerator {
                 throw error
             }
         }
+    }
+
+    func viewWithIdentifier(_ accessibilityIdentifier: String) throws -> UIView {
+        do {
+            return try eventGenerator.viewWithIdentifier(accessibilityIdentifier)
+        }
+        catch let error as HammerError {
+            switch error {
+            case .unableToFindView(let identifier):
+                throw TestKit.TestingError.missingViewWithAccessibilityIdentifier(identifier)
+            default:
+                throw error
+            }
+        }
+    }
+
+    func viewWithAccessibilityLabel(_ label: String) throws -> UIView {
+        try SwiftUIExTesting.viewWithAccessibilityLabel(label, in: eventGenerator.window)
+    }
+
+    func keyType(_ text: String, interval: TimeInterval) throws {
+        try eventGenerator.keyType(text, interval: interval)
+    }
+
+    func fingerTap(
+        _ index: FingerIndex?,
+        at location: HammerLocatable?,
+        numberOfTimes tapCount: Int,
+        interval: TimeInterval
+    ) throws {
+        try eventGenerator.fingerTap(index, at: location, numberOfTimes: tapCount, interval: interval)
+    }
+
+    func fingerDown(_ index: FingerIndex?, at location: HammerLocatable?) throws {
+        try eventGenerator.fingerDown(index, at: location)
+    }
+
+    func fingerMove(_ indices: [FingerIndex?], translationX x: CGFloat, y: CGFloat, duration: TimeInterval) throws {
+        try eventGenerator.fingerMove(indices, translationX: x, y: y, duration: duration)
+    }
+
+    func fingerUp(_ index: FingerIndex?) throws {
+        try eventGenerator.fingerUp(index)
+    }
+
+    func fingerDrag(
+        _ index: FingerIndex?,
+        from startPoint: HammerLocatable,
+        to endPoint: HammerLocatable,
+        duration: TimeInterval
+    ) throws {
+        try eventGenerator.fingerDrag(index, from: startPoint, to: endPoint, duration: duration)
     }
 }
 

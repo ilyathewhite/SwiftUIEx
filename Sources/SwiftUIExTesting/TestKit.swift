@@ -41,6 +41,7 @@ public enum TestKit {
     public enum TestingError: Error, Equatable, LocalizedError {
         case missingFirstSceneWindow
         case missingWindow
+        case missingViewWithAccessibilityLabel(String)
         case missingViewWithAccessibilityIdentifier(String)
         case failedToCreateMouseEvent(String)
         case failedToDeliverEvent(String)
@@ -52,6 +53,8 @@ public enum TestKit {
                 return "Unable to find the first scene window."
             case .missingWindow:
                 return "Unable to find a test window."
+            case let .missingViewWithAccessibilityLabel(label):
+                return "Unable to find a view with accessibility label '\(label)'."
             case let .missingViewWithAccessibilityIdentifier(identifier):
                 return "Unable to find a view with accessibility identifier '\(identifier)'."
             case let .failedToCreateMouseEvent(eventType):

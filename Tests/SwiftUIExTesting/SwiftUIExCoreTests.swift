@@ -317,6 +317,10 @@ struct SwiftUIExCoreTests {
         #expect(TestKit.WaitUntilError.timedOut(description: "view").errorDescription == "Timed out waiting for view.")
         #expect(TestKit.TestingError.missingFirstSceneWindow.errorDescription == "Unable to find the first scene window.")
         #expect(TestKit.TestingError.missingWindow.errorDescription == "Unable to find a test window.")
+        #expect(
+            TestKit.TestingError.missingViewWithAccessibilityLabel("label").errorDescription
+                == "Unable to find a view with accessibility label 'label'."
+        )
         #expect(TestKit.TestingError.missingViewWithAccessibilityIdentifier("id").errorDescription == "Unable to find a view with accessibility identifier 'id'.")
         #expect(TestKit.TestingError.failedToCreateMouseEvent("tap").errorDescription == "Unable to create a mouse event for 'tap'.")
         #expect(TestKit.TestingError.failedToDeliverEvent("tap").errorDescription == "Unable to deliver the 'tap' event.")

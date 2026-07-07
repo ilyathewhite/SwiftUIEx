@@ -30,6 +30,46 @@ func firstSceneWindow() -> UIWindow? {
     return window
 }
 
+@MainActor
+public func firstView(where predicate: (UIView) -> Bool) -> UIView? {
+    let windows = UIApplication.shared.connectedScenes
+        .compactMap { $0 as? UIWindowScene }
+        .flatMap(\.windows)
+
+    var queue: [UIView] = windows
+
+    while !queue.isEmpty {
+        let current = queue.removeFirst()
+        if predicate(current) {
+            return current
+        }
+        queue.append(contentsOf: current.subviews)
+    }
+
+    return nil
+}
+
+@MainActor
+public func viewWithAccessibilityLabel(_ label: String) throws -> UIView {
+    try firstViewWithAccessibilityLabel(label)
+}
+
+@MainActor
+func firstViewWithAccessibilityLabel(_ label: String) throws -> UIView {
+    guard let view = firstView(where: { $0.accessibilityLabel == label }) else {
+        throw TestKit.TestingError.missingViewWithAccessibilityLabel(label)
+    }
+    return view
+}
+
+@MainActor
+func viewWithAccessibilityLabel(_ label: String, in rootView: UIView) throws -> UIView {
+    guard let view = firstView(in: rootView, where: { $0.accessibilityLabel == label }) else {
+        throw TestKit.TestingError.missingViewWithAccessibilityLabel(label)
+    }
+    return view
+}
+
 #elseif canImport(AppKit)
 import AppKit
 
