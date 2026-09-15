@@ -20,7 +20,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0"),
-        .package(url: "https://github.com/ilyathewhite/FoundationEx.git", .upToNextMajor(from: "1.0.12")),
+        .package(url: "https://github.com/ilyathewhite/FoundationEx.git", .upToNextMajor(from: "1.1.0")),
         .package(url: "https://github.com/lyft/Hammer.git", .upToNextMajor(from: "0.18.0"))
     ],
     targets: [
