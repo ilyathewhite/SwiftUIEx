@@ -21,8 +21,8 @@ public enum ExplicitAnimation {
 
     /// Evaluates the current value for the animated property
     /// from the value that is mapped to the range between 0 and 1.
-    public struct ScaledValueEvaluator<T: VectorArithmetic & Numeric> {
-        public let eval: (_ scaledValue: Double) -> T
+    public struct ScaledValueEvaluator<T: VectorArithmetic & Numeric>: Sendable {
+        public let eval: @Sendable (_ scaledValue: Double) -> T
     }
 
     /// Evaluates the scaled value for the animated property
@@ -30,18 +30,19 @@ public enum ExplicitAnimation {
     /// animated property mapping to the range between 0 and 1.
     /// The animation progress is also in the range between 0 and 1 where
     /// 0 means the start of the animation, and 1 means the end.
-    public struct ProgressEvaluator {
-        let eval: (_ progress: Double) -> Double
+    public struct ProgressEvaluator: Sendable {
+        let eval: @Sendable (_ progress: Double) -> Double
     }
 
     public struct TriggerModifier<ModifierProvider: ExplicitAnimationModifierProvider>: AnimatableModifier {
         typealias Value = ModifierProvider.Value
 
-        var trigger: Trigger
+        // SwiftUI interpolates this numeric value through Animatable's nonisolated requirements.
+        nonisolated var trigger: Trigger
         let progressEvaluator: ProgressEvaluator
         let scaledValueEvaluator: ScaledValueEvaluator<Value>
 
-        public var animatableData: Double {
+        public nonisolated var animatableData: Double {
             get { trigger.rawValue }
             set { trigger.rawValue = newValue }
         }
@@ -200,4 +201,3 @@ public extension View {
         modifier(AnimatedZRotationTriggerModifier(maxAngle: maxAngle, trigger: trigger, progressEvaluator: progressEvaluator))
     }
 }
-

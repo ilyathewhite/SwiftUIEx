@@ -13,6 +13,7 @@ import UIKit
 typealias TestPlatformView = UIView
 typealias TestPlatformWindow = UIWindow
 
+@MainActor
 private func accessibilityIdentifier(for view: TestPlatformView) -> String? {
     view.accessibilityIdentifier
 }
@@ -76,6 +77,7 @@ import AppKit
 typealias TestPlatformView = NSView
 typealias TestPlatformWindow = NSWindow
 
+@MainActor
 private func accessibilityIdentifier(for view: TestPlatformView) -> String? {
     view.accessibilityIdentifier()
 }

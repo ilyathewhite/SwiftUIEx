@@ -41,7 +41,7 @@ public extension EnvironmentValues {
 }
 
 private struct ExitActionKey: EnvironmentKey {
-    static let defaultValue: (() -> ())? = nil
+    static var defaultValue: (() -> ())? { nil }
 }
 
 public extension EnvironmentValues {

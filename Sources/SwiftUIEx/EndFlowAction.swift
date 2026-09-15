@@ -19,7 +19,7 @@ public struct EndFlowAction {
 }
 
 public struct EndFlowActionKey: EnvironmentKey {
-    public static let defaultValue: EndFlowAction? = nil
+    public static var defaultValue: EndFlowAction? { nil }
 }
 
 public extension EnvironmentValues {

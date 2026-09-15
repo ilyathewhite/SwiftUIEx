@@ -29,6 +29,7 @@ public struct WindowReader: UIViewRepresentable {
         }
     }
     
+    @MainActor
     public class Coordinator {
         let parent: WindowReader
         

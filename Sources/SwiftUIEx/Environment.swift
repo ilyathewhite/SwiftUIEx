@@ -16,6 +16,7 @@ public enum SwiftUIEx {
         NSLog("SwiftUIEx Error:\n\(string)")
     }
 
+    @MainActor
     public static var env = Environment(
         logCodingError: logError(_:)
     )
