@@ -9,10 +9,26 @@ import SwiftUI
 public protocol TransferableEx: Transferable {
     associatedtype Preview: Transferable
 #if os(macOS)
+    @MainActor
     var pasteboardItem: NSPasteboardItem { get }
+#else
+    @MainActor
+    var itemProvider: NSItemProvider { get }
 #endif
+    @MainActor
     var exportPreview: SharePreview<Never, Preview> { get }
 }
+
+#if !os(macOS)
+extension TransferableEx {
+    @MainActor
+    public var itemProvider: NSItemProvider {
+        let provider = NSItemProvider()
+        provider.register(self)
+        return provider
+    }
+}
+#endif
 
 public struct CopyButton<T: TransferableEx>: View {
     let value: T?
@@ -35,9 +51,7 @@ public struct CopyButton<T: TransferableEx>: View {
         pboard.writeObjects([value.pasteboardItem])
 #else
         let pboard = UIPasteboard.general
-        let item = NSItemProvider()
-        item.register(value)
-        pboard.setItemProviders([item], localOnly: false, expirationDate: nil)
+        pboard.setItemProviders([value.itemProvider], localOnly: false, expirationDate: nil)
 #endif
         didCopy = true
         Task {

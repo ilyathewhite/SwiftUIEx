@@ -353,6 +353,14 @@ struct SwiftUIExCoreTests {
     }
 
     @Test
+    func copyButtonUsesPreparedItemProviderOnIOS() async throws {
+        CopyButton(PreparedClipboardPayload()).copy()
+        let provider = try #require(UIPasteboard.general.itemProviders.first)
+        #expect(provider.hasItemConformingToTypeIdentifier("com.swiftuiex.prepared-clipboard"))
+        try? await Task.sleep(for: .seconds(0.8))
+    }
+
+    @Test
     func passthroughViewIgnoresHitsOnItselfButKeepsSubviewHitsOnIOS() {
         let root = PassthroughView(frame: .init(x: 0, y: 0, width: 100, height: 100))
         let child = UIView(frame: .init(x: 10, y: 10, width: 20, height: 20))
@@ -726,6 +734,31 @@ private struct ClipboardPayload: TransferableEx {
 #endif
 
 #if os(iOS)
+private struct PreparedClipboardPayload: TransferableEx {
+    var text: String { "unprepared" }
+
+    static var transferRepresentation: some TransferRepresentation {
+        ProxyRepresentation(exporting: \.text)
+    }
+
+    @MainActor
+    var itemProvider: NSItemProvider {
+        let provider = NSItemProvider()
+        provider.registerDataRepresentation(
+            forTypeIdentifier: "com.swiftuiex.prepared-clipboard",
+            visibility: .all
+        ) { completion in
+            completion(Data("prepared".utf8), nil)
+            return nil
+        }
+        return provider
+    }
+
+    var exportPreview: SharePreview<Never, String> {
+        SharePreview("Clipboard Payload", icon: text)
+    }
+}
+
 @MainActor
 private final class CoreCustomInputRecorder {
     var clearCount = 0
