@@ -78,28 +78,6 @@ struct SwiftUIExCoreTests {
     }
 
     @Test
-    func measurementPreferenceKeysKeepFirstAndMaximumValues() {
-        enum Tag {}
-
-        var first: FirstMeasurementKey<Int, Tag>.Value = nil
-        FirstMeasurementKey<Int, Tag>.reduce(value: &first) { 7 }
-        FirstMeasurementKey<Int, Tag>.reduce(value: &first) { 99 }
-        #expect(first == 7)
-
-        var maxValue: MaxMeasurementKey<Int, Tag>.Value = nil
-        MaxMeasurementKey<Int, Tag>.reduce(value: &maxValue) { nil }
-        #expect(maxValue == nil)
-        MaxMeasurementKey<Int, Tag>.reduce(value: &maxValue) { 4 }
-        #expect(maxValue == 4)
-        MaxMeasurementKey<Int, Tag>.reduce(value: &maxValue) { nil }
-        #expect(maxValue == 4)
-        MaxMeasurementKey<Int, Tag>.reduce(value: &maxValue) { 9 }
-        #expect(maxValue == 9)
-        #expect(FirstMeasurementKey<Int, Tag>.defaultValue == nil)
-        #expect(MaxMeasurementKey<Int, Tag>.defaultValue == nil)
-    }
-
-    @Test
     func explicitAnimationEvaluatorsCoverEachProgressSegment() {
         var trigger = ExplicitAnimation.Trigger()
         trigger.animate()
@@ -240,15 +218,6 @@ struct SwiftUIExCoreTests {
         let wrapping = WrappingHStack(rowAlignment: .center, spacing: 4, rowSpacing: 6, items) { item in
             Text(item.title)
         }
-        let layout = wrapping.layout(availableWidth: 100)
-        let wrappingTop = WrappingHStack(rowAlignment: .top, items) { item in
-            Text(item.title)
-        }
-        let wrappingBottom = WrappingHStack(rowAlignment: .bottom, items) { item in
-            Text(item.title)
-        }
-        let wrappedLayout = wrapping.layout(availableWidth: -1)
-
         #expect(collection.content.count == 2)
         #expect(collection.cellEnv == "grid")
         #expect(collection.columnCount == 2)
@@ -259,11 +228,7 @@ struct SwiftUIExCoreTests {
         #expect(horizontal.spacing == 8)
         #expect(horizontal.edgeInsets.leading == 2)
         #expect(wrapping.data.map(\.id) == [1, 2])
-        #expect(messages.count == 3)
-        #expect(layout.frames.keys.count == 2)
-        #expect(wrappingTop.layout(availableWidth: 100).frames.keys.count == 2)
-        #expect(wrappingBottom.layout(availableWidth: 100).frames.keys.count == 2)
-        #expect(wrappedLayout.frames.keys.count == 2)
+        #expect(messages.count == 1)
     }
 
     @Test

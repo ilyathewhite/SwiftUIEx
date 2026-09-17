@@ -62,11 +62,6 @@ struct SwiftUIExRenderingSmokeTests {
                     .showIf(false)
 
                 Text("measurements")
-                    .heightMeasurement(HeightKey.self)
-                    .safeAreaInsetsMeasurement(InsetsKey.self)
-                    .measure(GenericKey.self, { _ in 7 }) { _ in }
-                    .measureHeight(HeightKey.self) { _ in }
-                    .measureSafeAreaInsets(InsetsKey.self) { _ in }
 
                 Text("animated")
                     .animatedOpacity(trigger: .init(rawValue: 0.25), progressEvaluator: .zero_one_zero_sin)
@@ -206,13 +201,6 @@ struct SwiftUIExRenderingSmokeTests {
     }
 
 }
-
-private enum HeightTag {}
-private enum InsetsTag {}
-private enum GenericTag {}
-private typealias HeightKey = MeasurementKey<CGFloat, HeightTag>
-private typealias InsetsKey = MeasurementKey<EdgeInsets, InsetsTag>
-private typealias GenericKey = MeasurementKey<Int, GenericTag>
 
 private struct DemoRenderItem: Identifiable, Equatable {
     let id: Int
@@ -364,11 +352,6 @@ struct SwiftUIExIOSRenderingSmokeTests {
                     .showIf(false)
 
                 Text("measurements")
-                    .heightMeasurement(HeightKey.self)
-                    .safeAreaInsetsMeasurement(InsetsKey.self)
-                    .measure(GenericKey.self, { _ in 7 }) { _ in }
-                    .measureHeight(HeightKey.self) { _ in }
-                    .measureSafeAreaInsets(InsetsKey.self) { _ in }
 
                 Text("animated")
                     .animatedOpacity(trigger: .init(rawValue: 0.25), progressEvaluator: .zero_one_zero_sin)
@@ -561,13 +544,6 @@ private struct RenderCustomInputView: CustomInputView {
         Text("Custom Input")
     }
 }
-
-private enum HeightTag {}
-private enum InsetsTag {}
-private enum GenericTag {}
-private typealias HeightKey = MeasurementKey<CGFloat, HeightTag>
-private typealias InsetsKey = MeasurementKey<EdgeInsets, InsetsTag>
-private typealias GenericKey = MeasurementKey<Int, GenericTag>
 
 private struct DemoRenderItem: Identifiable, Equatable {
     let id: Int

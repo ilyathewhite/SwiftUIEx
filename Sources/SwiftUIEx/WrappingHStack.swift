@@ -1,106 +1,88 @@
 //
 //  WrappingHStack.swift
-//  
+//
 //
 //  Created by Ilya Belenkiy on 8/27/21.
 //
 
 import SwiftUI
-import FoundationEx
-import Tagged
 
-public struct WrappingHStack<Data, Cell>: View where Data: RandomAccessCollection, Data.Element: Identifiable, Cell: View {
-    enum ContentWidthTag {}
-    typealias ContentWidthKey = MeasurementKey<CGFloat, ContentWidthTag>
+@available(tvOS 16.0, *)
+struct WrappingLayout: Layout {
+    let rowAlignment: VerticalAlignment
+    let spacing: CGFloat
+    let rowSpacing: CGFloat
 
-    enum SizeTag {}
-    typealias SizeKey = MeasurementKey<CGSize, SizeTag>
-
-    struct Layout {
-        let frames: [Data.Element.ID: CGRect]
-        let contentWidth: CGFloat
-        let contentHeight: CGFloat
+    struct Arrangement {
+        let frames: [CGRect]
+        let size: CGSize
     }
 
+    func arrangement(sizes: [CGSize], width: CGFloat?) -> Arrangement {
+        let limit = width.flatMap { $0.isFinite ? max(0, $0) : nil }
+        var frames: [CGRect] = []
+        var rowStart = 0
+        var rowWidth: CGFloat = 0
+        var rowHeight: CGFloat = 0
+        var contentWidth: CGFloat = 0
+        var y: CGFloat = 0
+
+        func finishRow() {
+            guard rowStart < frames.count else { return }
+            for index in rowStart..<frames.count {
+                let offset: CGFloat
+                switch rowAlignment {
+                case .top: offset = 0
+                case .bottom: offset = rowHeight - frames[index].height
+                default: offset = (rowHeight - frames[index].height) / 2
+                }
+                frames[index].origin.y = y + offset
+            }
+            contentWidth = max(contentWidth, rowWidth)
+            y += rowHeight
+            rowStart = frames.count
+            rowWidth = 0
+            rowHeight = 0
+        }
+
+        for size in sizes {
+            if let limit, rowStart < frames.count, rowWidth + spacing + size.width > limit {
+                finishRow()
+                y += rowSpacing
+            }
+            let x = rowStart == frames.count ? 0 : rowWidth + spacing
+            frames.append(CGRect(origin: CGPoint(x: x, y: y), size: size))
+            rowWidth = x + size.width
+            rowHeight = max(rowHeight, size.height)
+        }
+        finishRow()
+
+        return Arrangement(frames: frames, size: CGSize(width: max(limit ?? 0, contentWidth), height: y))
+    }
+
+    func sizeThatFits(proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) -> CGSize {
+        arrangement(sizes: subviews.map { $0.sizeThatFits(.unspecified) }, width: proposal.width).size
+    }
+
+    func placeSubviews(in bounds: CGRect, proposal: ProposedViewSize, subviews: Subviews, cache: inout ()) {
+        let result = arrangement(sizes: subviews.map { $0.sizeThatFits(.unspecified) }, width: proposal.width)
+        for (subview, frame) in zip(subviews, result.frames) {
+            subview.place(
+                at: CGPoint(x: bounds.minX + frame.minX, y: bounds.minY + frame.minY),
+                anchor: .topLeading,
+                proposal: ProposedViewSize(frame.size)
+            )
+        }
+    }
+}
+
+@available(tvOS 16.0, *)
+public struct WrappingHStack<Data, Cell>: View where Data: RandomAccessCollection, Data.Element: Identifiable, Cell: View {
     let rowAlignment: VerticalAlignment
     let spacing: CGFloat
     let rowSpacing: CGFloat
     let data: [Data.Element]
     let cellFunc: (Data.Element) -> Cell
-
-    @State private var cellSizes: [Data.Element.ID: CGSize] = [:]
-    @State private var availableWidth: CGFloat?
-
-    func layout(availableWidth: CGFloat) -> Layout {
-        var frames: [Data.Element.ID: CGRect] = [:]
-        var contentWidth: CGFloat = 0
-        var contentHeight: CGFloat = 0
-
-        var row: [Data.Element] = []
-        var offsetX: CGFloat = 0
-        var offsetY: CGFloat = 0
-        var rowHeight: CGFloat = 0
-
-        func getCellSize(_ element: Data.Element) -> CGSize {
-            cellSizes[element.id] ?? .zero
-        }
-
-        func addToRow(_ element: Data.Element, _ cellSize: CGSize) {
-            row.append(element)
-            let toElementSpacing = (element.id == data.first?.id) ? 0 : spacing
-            offsetX += (toElementSpacing + cellSize.width)
-            rowHeight = max(rowHeight, cellSize.height)
-        }
-
-        func processRow() {
-            guard !row.isEmpty else { return }
-
-            contentWidth = max(contentWidth, offsetX)
-            offsetX = 0
-
-            let toRowSpacing = (row.first?.id == data.first?.id) ? 0 : rowSpacing
-            offsetY += toRowSpacing
-            contentHeight = offsetY + rowHeight
-
-            for element in row {
-                let cellSize = getCellSize(element)
-
-                let originY: CGFloat
-                switch rowAlignment {
-                case .top:
-                    originY = offsetY
-                case .center:
-                    originY = offsetY + rowHeight / 2.0 - cellSize.height / 2.0
-                case .bottom:
-                    originY = offsetY + rowHeight - cellSize.height
-                default:
-                    assertionFailure("Not implemented")
-                    originY = offsetY + rowHeight - cellSize.height
-                }
-                frames[element.id] = CGRect(x: offsetX, y: originY, width: cellSize.width, height: cellSize.height)
-                offsetX += cellSize.width + spacing
-            }
-
-            row.removeAll()
-            offsetX = 0
-            offsetY += rowHeight
-            rowHeight = 0
-        }
-
-        for element in data {
-            let cellSize = getCellSize(element)
-            if offsetX + spacing + cellSize.width <= availableWidth {
-                addToRow(element, cellSize)
-            }
-            else {
-                processRow()
-                addToRow(element, cellSize)
-            }
-        }
-        processRow()
-
-        return .init(frames: frames, contentWidth: contentWidth, contentHeight: contentHeight)
-    }
 
     public init(
         rowAlignment: VerticalAlignment = .center,
@@ -130,32 +112,10 @@ public struct WrappingHStack<Data, Cell>: View where Data: RandomAccessCollectio
     }
 
     public var body: some View {
-        ZStack(alignment: .topLeading) {
-            Color.clear.frame(height: 1) // take all available space for the measurement
-
+        WrappingLayout(rowAlignment: rowAlignment, spacing: spacing, rowSpacing: rowSpacing) {
             ForEach(data) { element in
-                cellFunc(element)
-                    .fixedSize()
-                    .measureSize(SizeKey.self) {
-                        cellSizes[element.id] = $0
-                    }
-                    .hidden()
+                cellFunc(element).fixedSize()
             }
-
-            if let layout = availableWidth.flatMap({ layout(availableWidth: $0) }) {
-                ForEach(data) { element in
-                    if let frame = layout.frames[element.id] {
-                        let center = CGPoint(x: frame.midX, y: frame.midY)
-                        cellFunc(element)
-                            .fixedSize()
-                            .position(center)
-                    }
-                }
-                .frame(width: layout.contentWidth, height: layout.contentHeight)
-            }
-        }
-        .measureWidth(ContentWidthKey.self) {
-            availableWidth = $0
         }
     }
 }

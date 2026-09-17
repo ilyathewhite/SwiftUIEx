@@ -24,9 +24,6 @@ extension CollectionCell {
 }
 
 public struct Collection<Cell: CollectionCell>: View {
-    enum ContentWidthTag {}
-    typealias ContentWidthKey = MeasurementKey<CGFloat, ContentWidthTag>
-
     public typealias T = Cell.T
     public let content: [T]
     public var selection: Binding<T?>
@@ -104,9 +101,6 @@ public struct Collection<Cell: CollectionCell>: View {
 }
 
 public struct HCollection<Cell: CollectionCell>: View {
-    enum ContentWidthTag {}
-    typealias ContentWidthKey = MeasurementKey<CGFloat, ContentWidthTag>
-
     public typealias T = Cell.T
     public let content: [T]
     public var selection: Binding<T?>
