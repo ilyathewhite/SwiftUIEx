@@ -156,3 +156,56 @@ public struct HCollection<Cell: CollectionCell>: View {
         }
     }
 }
+
+#if DEBUG
+private struct CollectionPreview: View {
+    private struct Item: Identifiable {
+        let id: Int
+        var title: String { "Item \(id)" }
+    }
+
+    private struct Cell: CollectionCell {
+        let value: Item
+        @Binding var selection: Item?
+        let env: Void
+
+        init(value: Item, selection: Binding<Item?>, env: Void) {
+            self.value = value
+            self._selection = selection
+            self.env = env
+        }
+
+        var body: some View {
+            Button(action: { selection = value }) {
+                Text(value.title)
+                    .padding()
+                    .frame(maxWidth: .infinity)
+                    .accentColorSelection(isSelected: isSelected)
+            }
+            .buttonStyle(.plain)
+        }
+    }
+
+    @State private var selection: Item? = Item(id: 2)
+    private let items = (1...8).map { Item(id: $0) }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            Text("Three columns").font(.headline)
+            Collection<Cell>(content: items, selection: $selection, columnCount: 3, rowSpacing: 8)
+            Text("Adaptive columns").font(.headline)
+            Collection<Cell>(content: items, selection: $selection, cellWidth: 100)
+            Text("Horizontal collection").font(.headline)
+            HCollection<Cell>(content: items, selection: $selection, spacing: 8)
+                .frame(height: 60)
+        }
+        .padding()
+        .frame(width: 380)
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Collection", traits: .sizeThatFitsLayout) {
+    CollectionPreview()
+}
+#endif

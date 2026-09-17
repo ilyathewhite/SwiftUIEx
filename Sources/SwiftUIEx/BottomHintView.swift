@@ -69,29 +69,26 @@ public struct BottomHintView: View {
     }
 }
 
-private struct HintView_Previews: PreviewProvider {
-    private struct Container: View {
-        @State private var show = true
+#if DEBUG
+private struct HintViewPreview: View {
+    @State private var show = true
 
-        var body: some View {
-            ZStack {
-                Color.white.ignoresSafeArea()
-                Button("Toggle Hint") { show.toggle() }
-                BottomHintView(
-                    show: $show,
-                    text: "A useful hint for something you might miss otherwise",
-                    color: .red,
-                    zIndex: 1
-                )
-            }
+    var body: some View {
+        ZStack {
+            Color.white.ignoresSafeArea()
+            Button("Toggle Hint") { show.toggle() }
+            BottomHintView(
+                show: $show,
+                text: "A useful hint for something you might miss otherwise",
+                color: .red,
+                zIndex: 1
+            )
         }
     }
-
-    static var preview: some View {
-        Container()
-    }
-
-    static var previews: some View {
-        preview
-    }
 }
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Bottom hint", traits: .fixedLayout(width: 360, height: 240)) {
+    HintViewPreview()
+}
+#endif

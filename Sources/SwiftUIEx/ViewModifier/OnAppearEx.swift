@@ -42,3 +42,28 @@ public extension View {
         modifier(OnAppearEx(isConnected: isConnected, action: action))
     }
 }
+
+#if DEBUG
+private struct OnAppearExPreview: View {
+    @State private var connected = false
+    @State private var appeared = false
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text(appeared ? "Appeared after connecting" : "Waiting for connection")
+                .onAppear(isConnected: { connected }, action: { appeared = true })
+            ProgressView().opacity(appeared ? 0 : 1)
+        }
+        .padding()
+        .task {
+            try? await Task.sleep(for: .milliseconds(300))
+            connected = true
+        }
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("On Appear Ex", traits: .sizeThatFitsLayout) {
+    OnAppearExPreview()
+}
+#endif

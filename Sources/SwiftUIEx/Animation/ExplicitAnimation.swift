@@ -201,3 +201,32 @@ public extension View {
         modifier(AnimatedZRotationTriggerModifier(maxAngle: maxAngle, trigger: trigger, progressEvaluator: progressEvaluator))
     }
 }
+
+#if DEBUG
+private struct ExplicitAnimationPreview: View {
+    @State private var trigger = ExplicitAnimation.Trigger()
+
+    var body: some View {
+        VStack(spacing: 24) {
+            HStack(spacing: 48) {
+                Image(systemName: "bell.fill")
+                    .animatedZRotation(maxAngle: .pi / 6, trigger: trigger, progressEvaluator: .damped_oscillations_3)
+                Image(systemName: "star.fill")
+                    .animatedOpacity(trigger: trigger, progressEvaluator: .one_zero_one3)
+            }
+            .font(.system(size: 48))
+            .foregroundStyle(.orange)
+            .frame(height: 100)
+            Button("Animate") {
+                withAnimation(.linear(duration: 1.2)) { trigger.animate() }
+            }
+        }
+        .padding(32)
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Explicit Animation", traits: .sizeThatFitsLayout) {
+    ExplicitAnimationPreview()
+}
+#endif

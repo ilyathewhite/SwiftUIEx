@@ -106,3 +106,67 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
 }
 
 #endif
+
+#if DEBUG && os(iOS)
+private struct CustomInputTextFieldPreview: View {
+    private struct Keyboard: CustomInputView {
+        @Binding var value: String?
+        @Binding var typedText: String
+
+        func updateValue(_ value: String?) { self.value = value }
+        func updateTypedText(_ text: String) { typedText = text }
+
+        func clear() {
+            value = nil
+            typedText = ""
+        }
+
+        func hide() {
+            UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+        }
+
+        var body: some View {
+            HStack {
+                ForEach(["C", "F", "G"], id: \.self) { chord in
+                    Button(chord) {
+                        updateValue(chord)
+                        updateTypedText(chord)
+                    }
+                }
+                Button("Clear", action: clear)
+                Button("Done", action: hide)
+            }
+            .buttonStyle(.bordered)
+            .padding()
+        }
+    }
+
+    @State private var value: String?
+    @State private var text = ""
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Select a chord").font(.headline)
+            CustomInputTextField(
+                value: $value,
+                typedText: $text,
+                configure: {
+                    $0.placeholder = "Tap to open the custom keyboard"
+                    $0.borderStyle = .roundedRect
+                },
+                inputView: { Keyboard(value: $value, typedText: $text) }
+            )
+            .frame(height: 40)
+            Text("Selection: \(value ?? "None")")
+            Keyboard(value: $value, typedText: $text)
+        }
+        .padding()
+        .frame(width: 360)
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Custom Input Text Field", traits: .sizeThatFitsLayout) {
+    CustomInputTextFieldPreview()
+}
+#endif

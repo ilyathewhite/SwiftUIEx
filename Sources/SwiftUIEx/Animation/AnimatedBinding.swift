@@ -42,3 +42,27 @@ public struct Animated<ContentView: View, T: Equatable>: View {
         }
     }
 }
+
+#if DEBUG
+private struct AnimatedBindingPreview: View {
+    @State private var expanded = false
+
+    var body: some View {
+        VStack(spacing: 24) {
+            Toggle("Expand", isOn: $expanded)
+            Animated($expanded, with: { _ in .easeInOut(duration: 0.5) }, content: { value in
+                RoundedRectangle(cornerRadius: 16)
+                    .fill(.blue)
+                    .frame(width: value ? 240 : 100, height: value ? 120 : 60)
+            })
+            .frame(width: 260, height: 140)
+        }
+        .padding()
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Animated Binding", traits: .sizeThatFitsLayout) {
+    AnimatedBindingPreview()
+}
+#endif

@@ -57,3 +57,43 @@ public extension View {
         modifier(UnderlineSelection(isSelected: isSelected, color: color, thickness: thickness))
     }
 }
+
+#if DEBUG
+private struct ContentSelectionPreview: View {
+    @State private var selection = "One"
+    private let items = ["One", "Two", "Three"]
+
+    var body: some View {
+        VStack(spacing: 24) {
+            HStack {
+                ForEach(items, id: \.self) { item in
+                    Button(action: { selection = item }) {
+                        Text(item).padding().accentColorSelection(isSelected: selection == item)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+            HStack(spacing: 24) {
+                ForEach(items, id: \.self) { item in
+                    Button(action: { selection = item }) {
+                        Text(item).padding(.vertical, 8)
+                            .underlineSelection(isSelected: selection == item, color: .blue, thickness: 3)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+        }
+        .padding()
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Light", traits: .sizeThatFitsLayout) {
+    ContentSelectionPreview()
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Dark", traits: .sizeThatFitsLayout) {
+    ContentSelectionPreview().preferredColorScheme(.dark)
+}
+#endif

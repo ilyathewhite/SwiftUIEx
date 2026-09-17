@@ -75,3 +75,41 @@ public extension View {
         return modifier(view)
     }
 }
+
+#if DEBUG
+private struct RoundedRectBackgroundPreview: View {
+    @State private var radius: Double = 12
+
+    var body: some View {
+        VStack(spacing: 20) {
+            Text("Fixed radius")
+                .padding(24)
+                .roundedRectBackground(
+                    fillColor: .blue.opacity(0.15),
+                    borderColor: .blue,
+                    cornerRadius: .value(radius),
+                    borderWidth: 2
+                )
+            Slider(value: $radius, in: 0...40)
+            Text("Maximum radius")
+                .padding()
+                .roundedRectBackground(fillColor: .green.opacity(0.15), borderColor: .green, borderWidth: 2)
+            Text("Tall")
+                .frame(width: 60, height: 100)
+                .roundedRectBackground(fillColor: .orange.opacity(0.2))
+        }
+        .padding()
+        .frame(width: 300)
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Light", traits: .sizeThatFitsLayout) {
+    RoundedRectBackgroundPreview()
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Dark", traits: .sizeThatFitsLayout) {
+    RoundedRectBackgroundPreview().preferredColorScheme(.dark)
+}
+#endif

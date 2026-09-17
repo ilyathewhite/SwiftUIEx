@@ -59,3 +59,23 @@ public struct WindowReader: UIViewRepresentable {
 }
 
 #endif
+
+#if DEBUG && canImport(UIKit)
+private struct WindowReaderPreview: View {
+    @State private var window: UIWindow?
+
+    var body: some View {
+        VStack(spacing: 12) {
+            Image(systemName: "macwindow").font(.largeTitle)
+            Text(window == nil ? "Waiting for a window" : "Window connected")
+        }
+        .padding()
+        .background(WindowReader(window: $window))
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Window Reader", traits: .sizeThatFitsLayout) {
+    WindowReaderPreview()
+}
+#endif

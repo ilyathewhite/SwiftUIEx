@@ -69,3 +69,25 @@ public extension View {
 #endif
     }
 }
+
+#if DEBUG
+private struct TestViewPreview: View {
+    @State private var count = 0
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Button("Tap count: \(count)") { count += 1 }
+                .padding()
+                .testIdentifier("preview.button")
+            Text("The test marker leaves the button interactive.")
+                .font(.caption)
+        }
+        .padding()
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Test View", traits: .sizeThatFitsLayout) {
+    TestViewPreview()
+}
+#endif

@@ -222,3 +222,34 @@ public struct StyledTextField: NSViewRepresentable {
 }
 
 #endif
+
+#if DEBUG
+private struct StyledTextFieldPreview: View {
+    @State private var text = "Editable text"
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Styled native text field").font(.headline)
+            StyledTextField(text: $text) { field in
+#if os(iOS)
+                field.placeholder = "Enter text"
+                field.borderStyle = .roundedRect
+#else
+                field.placeholderString = "Enter text"
+                field.isBezeled = true
+#endif
+            }
+            .environment(\.foregroundColor, .blue)
+            .frame(height: 32)
+            Text("Value: \(text)").font(.caption)
+        }
+        .padding()
+        .frame(width: 300)
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Styled Text Field", traits: .sizeThatFitsLayout) {
+    StyledTextFieldPreview()
+}
+#endif

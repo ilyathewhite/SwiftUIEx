@@ -160,8 +160,9 @@ public struct WrappingHStack<Data, Cell>: View where Data: RandomAccessCollectio
     }
 }
 
-/*
-private struct Container: View {
+#if DEBUG
+@available(tvOS 16.0, *)
+private struct WrappingHStackPreview: View {
     struct Tag: Identifiable {
         let text: String
         var id: UUID
@@ -178,7 +179,7 @@ private struct Container: View {
         "#music", "#follow"
     ]
 
-    @State var data: [Tag] = []
+    @State var data: [Tag] = WrappingHStackPreview.strings.prefix(8).map(Tag.init)
 
     func removeFirst() {
         _ = withAnimation(.easeInOut(duration: 0.5)) {
@@ -219,13 +220,8 @@ private struct Container: View {
     }
 }
 
-struct WrappingHStack_Previews: PreviewProvider {
-    static var preview: some View {
-         Container()
-    }
-
-    static var previews: some View {
-        preview
-    }
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Wrapping stack", traits: .fixedLayout(width: 360, height: 320)) {
+    WrappingHStackPreview()
 }
-*/
+#endif

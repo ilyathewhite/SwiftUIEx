@@ -88,3 +88,56 @@ public struct MasterDetailView<Master: View, Detail: DetailView>: View {
         }
     }
 }
+
+#if DEBUG
+private struct MasterDetailViewPreview: View {
+    let showAll: Bool
+    @State private var showDetail = false
+    @State private var selection = "First"
+
+    var body: some View {
+        MasterDetailView(
+            master: {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Items").font(.headline)
+                    ForEach(["First", "Second", "Third"], id: \.self) { item in
+                        Button(item) {
+                            selection = item
+                            withAnimation(.slide) { showDetail = true }
+                        }
+                    }
+                    Spacer()
+                }
+                .padding()
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topLeading)
+                .background(Color.systemBackground)
+            },
+            detail: {
+                DetailContainerView {
+                    VStack(spacing: 16) {
+                        Text("\(selection) item").font(.title)
+                        if !showAll {
+                            Button("Back") { withAnimation(.slide) { showDetail = false } }
+                        }
+                    }
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(Color.systemBackground)
+                }
+            },
+            masterWidth: 180,
+            showAll: showAll,
+            showDetail: $showDetail
+        )
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Side by side", traits: .fixedLayout(width: 600, height: 320)) {
+    NavigationStack { MasterDetailViewPreview(showAll: true) }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Compact navigation", traits: .fixedLayout(width: 320, height: 400)) {
+    NavigationStack { MasterDetailViewPreview(showAll: false) }
+}
+#endif

@@ -70,3 +70,46 @@ public struct CopyButton<T: TransferableEx>: View {
         .buttonStyle(.borderless)
     }
 }
+
+#if DEBUG
+private struct CopyButtonPreview: View {
+    private struct Payload: TransferableEx {
+        let text: String
+
+        static var transferRepresentation: some TransferRepresentation {
+            ProxyRepresentation(exporting: \.text)
+        }
+
+#if os(macOS)
+        var pasteboardItem: NSPasteboardItem {
+            let item = NSPasteboardItem()
+            item.setString(text, forType: .string)
+            return item
+        }
+#endif
+
+        var exportPreview: SharePreview<Never, String> {
+            SharePreview("Preview text", icon: text)
+        }
+    }
+
+    var body: some View {
+        HStack(spacing: 24) {
+            VStack {
+                Text("Copy text")
+                CopyButton(Payload(text: "Hello from SwiftUIEx"))
+            }
+            VStack {
+                Text("Unavailable")
+                CopyButton<Payload>(nil)
+            }
+        }
+        .padding()
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Copy Button", traits: .sizeThatFitsLayout) {
+    CopyButtonPreview()
+}
+#endif

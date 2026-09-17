@@ -39,3 +39,24 @@ public extension View {
         modifier(ActionTriggerModifier(trigger, action: action))
     }
 }
+
+#if DEBUG
+private struct ActionTriggerPreview: View {
+    @State private var trigger = ActionTrigger()
+    @State private var count = 0
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Text("Received \(count) actions")
+                .actionTrigger($trigger) { count += 1 }
+            Button("Fire action") { trigger.fire() }
+        }
+        .padding()
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Action Trigger", traits: .sizeThatFitsLayout) {
+    ActionTriggerPreview()
+}
+#endif

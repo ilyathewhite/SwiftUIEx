@@ -29,3 +29,28 @@ public extension View {
         modifier(ConnectOnAppear(connectIfHidden: connectIfHidden, connect: connect))
     }
 }
+
+#if DEBUG
+private struct ConnectOnAppearPreview: View {
+    @State private var connected = false
+    @State private var identity = 0
+
+    var body: some View {
+        VStack(spacing: 16) {
+            Label(connected ? "Connected" : "Waiting", systemImage: connected ? "checkmark.circle" : "clock")
+                .connectOnAppear { connected = true }
+                .id(identity)
+            Button("Reconnect") {
+                connected = false
+                identity += 1
+            }
+        }
+        .padding()
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Connect On Appear", traits: .sizeThatFitsLayout) {
+    ConnectOnAppearPreview()
+}
+#endif

@@ -37,3 +37,27 @@ public class HostingView<Content>: UIView where Content: View {
 }
     
 #endif
+
+#if DEBUG && os(iOS)
+private struct HostingViewPreview: UIViewRepresentable {
+    func makeUIView(context: Context) -> UIView {
+        HostingView(rootView:
+            VStack(spacing: 12) {
+                Image(systemName: "square.stack.3d.up").font(.largeTitle)
+                Text("SwiftUI content inside a UIKit hosting view")
+                    .multilineTextAlignment(.center)
+            }
+            .padding()
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.blue.opacity(0.15))
+        )
+    }
+
+    func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("Hosting view", traits: .fixedLayout(width: 300, height: 160)) {
+    HostingViewPreview()
+}
+#endif

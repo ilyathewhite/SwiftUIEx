@@ -47,3 +47,24 @@ public extension View {
 }
 
 #endif
+
+#if DEBUG
+private struct ViewExtensionsPreview: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Section above").padding()
+            Text("Section with a top divider")
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .topDivider()
+        }
+        .frame(width: 300)
+        .padding()
+    }
+}
+
+@available(iOS 17.0, tvOS 17.0, *)
+#Preview("View Extensions", traits: .sizeThatFitsLayout) {
+    ViewExtensionsPreview()
+}
+#endif
