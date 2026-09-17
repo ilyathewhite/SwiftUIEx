@@ -8,30 +8,37 @@
 import SwiftUI
 
 public struct RoundedRectBackground: ViewModifier {
-    enum RadiusTag {}
-    typealias RadiusKey = MeasurementKey<CGFloat, RadiusTag>
+    struct BackgroundShape: Shape {
+        var cornerRadius: CornerRadius
 
-    struct Container<C: View>: View {
-        @State var cornerRadius: CGFloat?
-
-        let content: C
-        let fillColor: Color
-        let borderColor: Color
-        let borderWidth: CGFloat
-
-        var body: some View {
-            let shape = RoundedRectangle(cornerRadius: cornerRadius ?? 0)
-            return content
-                .background(shape.fill(fillColor))
-                .overlay(shape.stroke(borderColor, lineWidth: borderWidth))
-                .clipShape(shape)
-                .onPreferenceChange(RadiusKey.self) {
-                    cornerRadius = $0
+        var animatableData: CGFloat {
+            get {
+                switch cornerRadius {
+                case .value(let radius): return radius
+                case .max: return 0
                 }
+            }
+            set {
+                switch cornerRadius {
+                case .value: cornerRadius = .value(newValue)
+                case .max: break
+                }
+            }
+        }
+
+        func path(in rect: CGRect) -> Path {
+            let radius: CGFloat
+            switch cornerRadius {
+            case .value(let value):
+                radius = value
+            case .max:
+                radius = rect.height / 2
+            }
+            return RoundedRectangle(cornerRadius: radius).path(in: rect)
         }
     }
 
-    public enum CornerRadius {
+    public enum CornerRadius: Sendable {
         case value(CGFloat)
         case max
     }
@@ -42,19 +49,11 @@ public struct RoundedRectBackground: ViewModifier {
     let borderWidth: CGFloat
 
     public func body(content: Content) -> some View {
-        Container(
-            content: content.measurement(RadiusKey.self) { proxy in
-                switch cornerRadius {
-                case .value(let value):
-                    return value
-                case .max:
-                    return proxy.size.height / 2
-                }
-            },
-            fillColor: fillColor,
-            borderColor: borderColor,
-            borderWidth: borderWidth
-        )
+        let shape = BackgroundShape(cornerRadius: cornerRadius)
+        content
+            .background(shape.fill(fillColor))
+            .overlay(shape.stroke(borderColor, lineWidth: borderWidth))
+            .clipShape(shape)
     }
 }
 
