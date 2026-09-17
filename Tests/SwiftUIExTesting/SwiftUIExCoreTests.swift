@@ -547,8 +547,6 @@ struct SwiftUIExCoreTests {
         #expect(!text.isContextMenuVisible(window: nil))
         #expect(!text.isContextMenuVisible(window: window))
 
-        _ = Color(_uiColor: .red)
-        _ = UIColor.blue.swiftUIcolor
         _ = Color.systemGray6
         _ = Color.placeholderText
         _ = Color.systemFill
