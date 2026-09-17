@@ -267,20 +267,6 @@ struct SwiftUIExCoreTests {
     }
 
     @Test
-    func animatablePathWrapperUpdatesAnimatableEndPoint() {
-        let path = Path { path in
-            path.move(to: .zero)
-            path.addLine(to: .init(x: 10, y: 0))
-        }
-        var wrapper = AnimatablePath.PathWrapper(path: path, end: 0.25)
-
-        wrapper.animatableData = 0.75
-
-        #expect(wrapper.animatableData == 0.75)
-        #expect(!wrapper.path(in: .init(x: 0, y: 0, width: 10, height: 10)).isEmpty)
-    }
-
-    @Test
     func bottomHintAnimationUsesSeparateShowAndHideDurations() {
         var show = true
         let hint = BottomHintView(

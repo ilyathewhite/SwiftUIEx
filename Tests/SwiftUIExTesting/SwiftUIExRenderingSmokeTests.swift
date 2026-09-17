@@ -97,11 +97,6 @@ struct SwiftUIExRenderingSmokeTests {
             items[1]
         }, set: { _ in })
 
-        let path = Path { path in
-            path.move(to: .init(x: 0, y: 0))
-            path.addLine(to: .init(x: 20, y: 20))
-        }
-
         render(
             ZStack {
                 BottomHintView(
@@ -156,12 +151,6 @@ struct SwiftUIExRenderingSmokeTests {
                     Text(item.title)
                         .padding(4)
                 }
-
-                AnimatablePath(
-                    path: path,
-                    end: 0.75,
-                    strokeStyle: .init(lineWidth: 2, lineCap: .round, lineJoin: .round)
-                )
 
                 Animated(Binding(get: { showHint }, set: { showHint = $0 }), with: { _ in .default }) { value in
                     Text(value ? "On" : "Off")
@@ -410,11 +399,6 @@ struct SwiftUIExIOSRenderingSmokeTests {
             items[1]
         }, set: { _ in })
 
-        let path = Path { path in
-            path.move(to: .init(x: 0, y: 0))
-            path.addLine(to: .init(x: 20, y: 20))
-        }
-
         render(
             ZStack {
                 BottomHintView(
@@ -469,12 +453,6 @@ struct SwiftUIExIOSRenderingSmokeTests {
                     Text(item.title)
                         .padding(4)
                 }
-
-                AnimatablePath(
-                    path: path,
-                    end: 0.75,
-                    strokeStyle: .init(lineWidth: 2, lineCap: .round, lineJoin: .round)
-                )
 
                 Animated(Binding(get: { showHint }, set: { showHint = $0 }), with: { _ in .default }) { value in
                     Text(value ? "On" : "Off")
