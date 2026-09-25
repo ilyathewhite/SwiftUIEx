@@ -117,6 +117,7 @@ public struct StyledTextField: NSViewRepresentable {
     @Binding var text: String
     let configure: (NSTextField) -> Void
     let formatter: Formatter?
+    let commitOnEndEditing: Bool
 
     // Returns the value represented by the input string. If the formatter cannot create a value from the input,
     // the callback is called with nil.
@@ -126,13 +127,19 @@ public struct StyledTextField: NSViewRepresentable {
 
     public class Coordinator: NSObject, NSTextFieldDelegate {
         let parent: StyledTextField
+        private var committedText: String?
         
         init(parent: StyledTextField) {
             self.parent = parent
         }
+
+        public func controlTextDidBeginEditing(_ obj: Notification) {
+            committedText = nil
+        }
         
         public func controlTextDidChange(_ obj: Notification) {
             guard let fieldEditor = obj.userInfo?["NSFieldEditor"] as? NSTextView else { return }
+            committedText = nil
             let text = fieldEditor.string
             if let formatter = parent.formatter {
                 var replacementText: NSString?
@@ -143,9 +150,20 @@ public struct StyledTextField: NSViewRepresentable {
         }
         
         public func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
-            guard let getValue = parent.getValue else {
-                return true
+            if parent.commitOnEndEditing {
+                commit(fieldEditor)
             }
+            return true
+        }
+
+        @MainActor
+        private func commit(_ fieldEditor: NSText) {
+            guard let getValue = parent.getValue else { return }
+
+            // Return commits before ending editing. The resulting focus change can ask
+            // to end editing again; avoid publishing the same submission twice, even if the callback reenters.
+            guard committedText != fieldEditor.string else { return }
+            committedText = fieldEditor.string
             
             if let formatter = parent.formatter {
                 var value: AnyObject? = nil
@@ -160,7 +178,6 @@ public struct StyledTextField: NSViewRepresentable {
             else {
                 getValue(fieldEditor.string as NSString)
             }
-            return true
         }
 
         public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
@@ -175,9 +192,10 @@ public struct StyledTextField: NSViewRepresentable {
                 }
                 return true
             case #selector(NSStandardKeyBindingResponding.insertNewline(_:)):
-                if self.control(control, textShouldEndEditing: textView) {
-                    control.endEditing(textView)
-                }
+                // Return is a new submission even when refocusing did not begin a text edit.
+                committedText = nil
+                commit(textView)
+                control.endEditing(textView)
                 return true
             default:
                 return false
@@ -189,11 +207,14 @@ public struct StyledTextField: NSViewRepresentable {
         text: Binding<String>,
         formatter: Formatter? = nil,
         getValue: ((AnyObject?) -> Void)? = nil,
+        // Return always commits. Disable this for fields that submit actions rather than edit a value.
+        commitOnEndEditing: Bool = true,
         configure: @escaping (NSTextField) -> Void
     ) {
         self._text = text
         self.formatter = formatter
         self.getValue = getValue
+        self.commitOnEndEditing = commitOnEndEditing
         self.configure = configure
     }
     
