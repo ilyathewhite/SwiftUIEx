@@ -20,7 +20,7 @@ public struct DetailContainerView<Content: View>: DetailView {
     public init(@ViewBuilder content: () -> Content) {
         self.content = content()
     }
-    
+
     public var body: some View {
             content
                 .toolbar {
@@ -44,10 +44,16 @@ public struct MasterDetailView<Master: View, Detail: DetailView>: View {
     var detail: Detail
     let masterWidth: CGFloat
     let showAll: Bool
-    
+
     @Binding var showDetail: Bool
-    
-    public init(master: () -> Master, detail: () -> Detail, masterWidth: CGFloat = 375, showAll: Bool, showDetail: Binding<Bool>) {
+
+    public init(
+        master: () -> Master,
+        detail: () -> Detail,
+        masterWidth: CGFloat = 375,
+        showAll: Bool,
+        showDetail: Binding<Bool>
+    ) {
         self.master = master()
         self.detail = detail()
         self.detail.showBackButton = !showAll
@@ -64,7 +70,7 @@ public struct MasterDetailView<Master: View, Detail: DetailView>: View {
                     .frame(width: showAll ? masterWidth : nil)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .zIndex(0)
-                
+
                 if showAll {
                     HStack {
                         Spacer()
@@ -74,7 +80,7 @@ public struct MasterDetailView<Master: View, Detail: DetailView>: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .zIndex(2)
                 }
-                
+
                 if showDetail || showAll {
                     let detailIdealWidth = proxy.size.width - masterWidth
                     let detailWidth = (showAll && (detailIdealWidth > 0)) ? detailIdealWidth : nil

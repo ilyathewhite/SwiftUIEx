@@ -69,7 +69,7 @@ public extension ExplicitAnimation.Trigger {
 
 public extension ExplicitAnimation.ScaledValueEvaluator where T == Double {
     static let identity: Self = .init { $0 }
-    
+
     static let radians: Self = .init { 2 * .pi * $0 }
 }
 
@@ -101,7 +101,7 @@ public extension ExplicitAnimation.ProgressEvaluator {
             return 1 - 4.0 * (1 - x)
         }
     }
-    
+
     static let damped_oscillations_3: Self = .init { x in
         // break up each expresion to improve the compilation time
         let a, b, c: Double
@@ -155,7 +155,10 @@ extension AnimatedOpacityTriggerModifier {
 }
 
 public extension View {
-    func animatedOpacity(trigger: ExplicitAnimation.Trigger, progressEvaluator: ExplicitAnimation.ProgressEvaluator) -> some View {
+    func animatedOpacity(
+        trigger: ExplicitAnimation.Trigger,
+        progressEvaluator: ExplicitAnimation.ProgressEvaluator
+    ) -> some View {
         modifier(AnimatedOpacityTriggerModifier(trigger: trigger, progressEvaluator: progressEvaluator))
     }
 }
@@ -179,7 +182,11 @@ public enum ZRotationModifierProvider: ExplicitAnimationModifierProvider {
 public typealias AnimatedZRotationTriggerModifier = ExplicitAnimation.TriggerModifier<ZRotationModifierProvider>
 
 extension AnimatedZRotationTriggerModifier {
-    init(maxAngle: Double, trigger: ExplicitAnimation.Trigger, progressEvaluator: ExplicitAnimation.ProgressEvaluator) {
+    init(
+        maxAngle: Double,
+        trigger: ExplicitAnimation.Trigger,
+        progressEvaluator: ExplicitAnimation.ProgressEvaluator
+    ) {
         self.init(
             trigger: trigger,
             progressEvaluator: progressEvaluator,

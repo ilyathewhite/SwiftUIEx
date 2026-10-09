@@ -121,11 +121,10 @@ struct EventGeneratorContractTests {
         do {
             try eventGenerator.fingerTap(at: "missing.view.identifier")
             Issue.record("Expected a missing identifier error.")
-        } catch let error as TestKit.TestingError {
+        }
+        catch let error as TestKit.TestingError {
             #expect(
-                error == .missingViewWithAccessibilityIdentifier(
-                    "missing.view.identifier"
-                )
+                error == .missingViewWithAccessibilityIdentifier("missing.view.identifier")
             )
         }
     }
@@ -143,11 +142,10 @@ struct EventGeneratorContractTests {
     @Test
     func macOSEventGeneratorReportsNotImplemented() async throws {
         do {
-            _ = try await EventGenerator(
-                view: Text("macOS Event Generation Placeholder")
-            )
+            _ = try await EventGenerator(view: Text("macOS Event Generation Placeholder"))
             Issue.record("Expected EventGenerator to be unavailable on macOS.")
-        } catch let error as TestKit.TestingError {
+        }
+        catch let error as TestKit.TestingError {
             #expect(error == .notImplemented("EventGenerator on macOS"))
         }
     }

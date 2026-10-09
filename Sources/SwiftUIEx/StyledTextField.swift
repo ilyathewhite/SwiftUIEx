@@ -21,22 +21,26 @@ public struct StyledTextField: UIViewRepresentable {
     // Returns the value represented by the input string. If the formatter cannot create a value from the input,
     // the callback is called with nil.
     let getValue: ((AnyObject?) -> Void)?
-    
+
     @Environment(\.foregroundColor) var foregroundColor
 
     public class Coordinator: NSObject, UITextFieldDelegate {
         let parent: StyledTextField
-        
+
         init(parent: StyledTextField) {
             self.parent = parent
         }
-        
+
         public func textFieldShouldClear(_ textField: UITextField) -> Bool {
             parent.text.removeAll()
             return true
         }
-        
-        public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+
+        public func textField(
+            _ textField: UITextField,
+            shouldChangeCharactersIn range: NSRange,
+            replacementString string: String
+        ) -> Bool {
             let text = textField.text ?? ""
             guard let strRange = Range(range, in: text) else { return false }
             let newText = text.replacingCharacters(in: strRange, with: string)
@@ -50,10 +54,10 @@ public struct StyledTextField: UIViewRepresentable {
             }
             return true
         }
-        
+
         public func textFieldShouldReturn(_ textField: UITextField) -> Bool {
             guard let formatter = parent.formatter else {
-                parent.getValue?(textField.text as? NSString) 
+                parent.getValue?(textField.text as? NSString)
                 return true
             }
             if let text = textField.text, let getValue = parent.getValue {
@@ -85,24 +89,24 @@ public struct StyledTextField: UIViewRepresentable {
         self.getValue = getValue
         self.configure = configure
     }
-    
+
     public func makeCoordinator() -> Coordinator {
         .init(parent: self)
     }
-    
+
     public func makeUIView(context: Context) -> UITextField {
         let textField = UITextField()
-        
+
         // default settings
         textField.delegate = context.coordinator
         textField.setContentHuggingPriority(.defaultHigh, for: .vertical)
         textField.clearButtonMode = .whileEditing
-        
+
         configure(textField)
 
         return textField
     }
-    
+
     public func updateUIView(_ textField: UITextField, context: Context) {
         if textField.text != text {
             textField.text = text
@@ -122,13 +126,13 @@ public struct StyledTextField: NSViewRepresentable {
     // Returns the value represented by the input string. If the formatter cannot create a value from the input,
     // the callback is called with nil.
     let getValue: ((AnyObject?) -> Void)?
-    
+
     @Environment(\.foregroundColor) var foregroundColor
 
     public class Coordinator: NSObject, NSTextFieldDelegate {
         let parent: StyledTextField
         private var committedText: String?
-        
+
         init(parent: StyledTextField) {
             self.parent = parent
         }
@@ -136,7 +140,7 @@ public struct StyledTextField: NSViewRepresentable {
         public func controlTextDidBeginEditing(_ obj: Notification) {
             committedText = nil
         }
-        
+
         public func controlTextDidChange(_ obj: Notification) {
             guard let fieldEditor = obj.userInfo?["NSFieldEditor"] as? NSTextView else { return }
             committedText = nil
@@ -144,11 +148,11 @@ public struct StyledTextField: NSViewRepresentable {
             if let formatter = parent.formatter {
                 var replacementText: NSString?
                 formatter.isPartialStringValid(text, newEditingString: &replacementText, errorDescription: nil)
-                fieldEditor.string =  replacementText as? String ?? text
+                fieldEditor.string = replacementText as? String ?? text
             }
             parent.text = fieldEditor.string
         }
-        
+
         public func control(_ control: NSControl, textShouldEndEditing fieldEditor: NSText) -> Bool {
             if parent.commitOnEndEditing {
                 commit(fieldEditor)
@@ -164,7 +168,7 @@ public struct StyledTextField: NSViewRepresentable {
             // to end editing again; avoid publishing the same submission twice, even if the callback reenters.
             guard committedText != fieldEditor.string else { return }
             committedText = fieldEditor.string
-            
+
             if let formatter = parent.formatter {
                 var value: AnyObject? = nil
                 formatter.getObjectValue(&value, for: fieldEditor.string, errorDescription: nil)
@@ -180,7 +184,11 @@ public struct StyledTextField: NSViewRepresentable {
             }
         }
 
-        public func control(_ control: NSControl, textView: NSTextView, doCommandBy commandSelector: Selector) -> Bool {
+        public func control(
+            _ control: NSControl,
+            textView: NSTextView,
+            doCommandBy commandSelector: Selector
+        ) -> Bool {
             switch commandSelector {
             case #selector(NSStandardKeyBindingResponding.cancelOperation(_:)):
                 if textView.string.isEmpty {
@@ -217,23 +225,23 @@ public struct StyledTextField: NSViewRepresentable {
         self.commitOnEndEditing = commitOnEndEditing
         self.configure = configure
     }
-    
+
     public func makeCoordinator() -> Coordinator {
         .init(parent: self)
     }
-    
+
     public func makeNSView(context: Context) -> NSTextField {
         let textField = NSTextField()
-        
+
         // default settings
         textField.delegate = context.coordinator
         textField.setContentHuggingPriority(.defaultHigh, for: .vertical)
-        
+
         configure(textField)
 
         return textField
     }
-    
+
     public func updateNSView(_ textField: NSTextField, context: Context) {
         if textField.stringValue != text {
             textField.stringValue = text

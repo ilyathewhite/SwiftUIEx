@@ -32,17 +32,17 @@ extension TransferableEx {
 
 public struct CopyButton<T: TransferableEx>: View {
     let value: T?
-    
+
     @State private var didCopy = false
-    
+
     var icon: String {
         didCopy ? "checkmark" : "square.on.square"
     }
-    
+
     public init(_ value: T?) {
         self.value = value
     }
-    
+
     func copy() {
         guard let value else { return }
 #if os(macOS)
@@ -59,7 +59,7 @@ public struct CopyButton<T: TransferableEx>: View {
             didCopy = false
         }
     }
-    
+
     public var body: some View {
         Button(action: copy) {
             Image(systemName: icon)

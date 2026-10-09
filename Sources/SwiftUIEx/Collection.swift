@@ -10,7 +10,7 @@ import SwiftUI
 public protocol CollectionCell: View {
     associatedtype T: Identifiable
     associatedtype Environment
-    
+
     var value: T { get }
     var selection: T? { get }
     var env: Environment { get }
@@ -27,7 +27,7 @@ public struct Collection<Cell: CollectionCell>: View {
     public typealias T = Cell.T
     public let content: [T]
     public var selection: Binding<T?>
-    
+
     public let cellEnv: Cell.Environment
 
     public let cellWidth: CGFloat?
@@ -69,7 +69,7 @@ public struct Collection<Cell: CollectionCell>: View {
             gridItem = GridItem(.fixed(50))
         }
     }
-    
+
     public init(
         content: [T],
         selection: Binding<T?>,
@@ -104,7 +104,7 @@ public struct HCollection<Cell: CollectionCell>: View {
     public typealias T = Cell.T
     public let content: [T]
     public var selection: Binding<T?>
-    
+
     public let cellEnv: Cell.Environment
 
     public let spacing: CGFloat?
@@ -123,7 +123,7 @@ public struct HCollection<Cell: CollectionCell>: View {
         self.spacing = spacing
         self.edgeInsets = edgeInsets
     }
-    
+
     public init(
         content: [T],
         selection: Binding<T?>,
@@ -131,12 +131,7 @@ public struct HCollection<Cell: CollectionCell>: View {
         spacing: CGFloat? = nil
     )
     where Cell.Environment == Void {
-        self.init(
-            content: content,
-            selection: selection,
-            cellEnv: (),
-            spacing: spacing
-        )
+        self.init(content: content, selection: selection, cellEnv: (), spacing: spacing)
     }
 
     public var body: some View {

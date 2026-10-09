@@ -8,11 +8,11 @@ import SwiftUI
 
 public struct EndFlowAction {
     let action: () -> Void
-    
+
     public func callAsFunction() {
         action()
     }
-    
+
     public init(action: @escaping () -> Void) {
         self.action = action
     }

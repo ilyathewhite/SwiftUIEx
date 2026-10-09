@@ -1,6 +1,6 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Ilya Belenkiy on 4/2/23.
 //
@@ -33,7 +33,7 @@ public struct NavigationRow<V: View>: View {
         HStack {
             label
             Spacer()
-            Image(systemName:"chevron.right")
+            Image(systemName: "chevron.right")
                 .foregroundColor(.quaternaryLabel)
                 .font(.footnote.weight(.bold))
                 .padding(.leading)
@@ -51,13 +51,11 @@ private struct NavigationRowPreview: View {
 
     var body: some View {
         VStack(spacing: 0) {
-            NavigationRow("Settings", action: { selection = "Settings" })
+            NavigationRow("Settings") { selection = "Settings" }
                 .frame(height: 48)
             Divider()
-            NavigationRow(action: { selection = "Favorites" }, label: {
-                Label("Favorites", systemImage: "star")
-            })
-            .frame(height: 48)
+            NavigationRow(action: { selection = "Favorites" }) { Label("Favorites", systemImage: "star") }
+                .frame(height: 48)
             Divider()
             Text("Selected: \(selection)").font(.caption).padding(.top)
         }

@@ -21,7 +21,7 @@ public extension Color {
         }
         self.init(R: red, G: green, B: blue, darkR: 1.0 - red, darkG: 1.0 - green, darkB: 1.0 - blue, alpha: alpha)
     }
-    
+
     init(R: Double, G: Double, B: Double, darkR: Double, darkG: Double, darkB: Double, alpha: Double = 1) {
 #if canImport(UIKit)
         let uiColor = UIColor(dynamicProvider: {
@@ -46,15 +46,15 @@ public extension Color {
         self.init(nsColor)
 #endif
     }
-    
+
     init(R: Int, G: Int, B: Int, darkR: Int, darkG: Int, darkB: Int, alpha: Double = 1) {
         self.init(
-            R: Double(R)/255, G: Double(G)/255, B: Double(B)/255,
-            darkR: Double(darkR)/255, darkG: Double(darkG)/255, darkB: Double(darkB)/255,
+            R: Double(R) / 255, G: Double(G) / 255, B: Double(B) / 255,
+            darkR: Double(darkR) / 255, darkG: Double(darkG) / 255, darkB: Double(darkB) / 255,
             alpha: alpha
         )
     }
-    
+
     #if os(iOS)
 
     static var systemGray2: Self { .init(uiColor: .systemGray2) }
@@ -77,7 +77,7 @@ public extension Color {
     static var systemBackground: Self { .init(uiColor: .systemBackground) }
     static var secondarySystemBackground: Self { .init(uiColor: .secondarySystemBackground) }
     static var tertiarySystemBackground: Self { .init(uiColor: .tertiarySystemBackground) }
-    
+
     #endif
 
     #if os(macOS)
@@ -85,15 +85,15 @@ public extension Color {
     static var secondaryLabel: Self { .init(nsColor: .secondaryLabelColor) }
     static var tertiaryLabel: Self { .init(nsColor: .tertiaryLabelColor) }
     static var quaternaryLabel: Self { .init(nsColor: .quaternaryLabelColor) }
-    
+
     // the values are from
     // https://developer.apple.com/design/human-interface-guidelines/color
-    
+
     static var systemGray2: Self { .init(R: 174, G: 174, B: 178, darkR: 99, darkG: 99, darkB: 102) }
     static var systemGray3: Self { .init(R: 199, G: 199, B: 204, darkR: 72, darkG: 72, darkB: 74) }
     static var systemGray4: Self { .init(R: 209, G: 209, B: 214, darkR: 58, darkG: 58, darkB: 60) }
     static var systemGray5: Self { .init(R: 229, G: 229, B: 234, darkR: 44, darkG: 44, darkB: 46) }
-    
+
     static var systemBackground: Self { .init(R: 255, G: 255, B: 255, darkR: 0, darkG: 0, darkB: 0) }
 
     #endif

@@ -88,9 +88,7 @@ struct SwiftUIExRenderingSmokeTests {
             DemoRenderItem(id: 2, title: "Two"),
             DemoRenderItem(id: 3, title: "Three")
         ]
-        let selection = Binding<DemoRenderItem?>(get: {
-            items[1]
-        }, set: { _ in })
+        let selection = Binding<DemoRenderItem?>(get: { items[1] }, set: { _ in })
 
         render(
             ZStack {
@@ -107,10 +105,8 @@ struct SwiftUIExRenderingSmokeTests {
                 NavigationRow(LocalizedStringKey("Localized")) {}
                     .frame(height: 44)
 
-                NavigationRow(action: {}, label: {
-                    Text("Closure")
-                })
-                .frame(height: 44)
+                NavigationRow(action: {}) { Text("Closure") }
+                    .frame(height: 44)
 
                 DetailContainerView {
                     Text("Detail")
@@ -136,20 +132,17 @@ struct SwiftUIExRenderingSmokeTests {
                     rowSpacing: 6
                 )
 
-                HCollection<RenderCell>(
-                    content: items,
-                    selection: selection,
-                    spacing: 5
-                )
+                HCollection<RenderCell>(content: items, selection: selection, spacing: 5)
 
                 WrappingHStack(items) { item in
                     Text(item.title)
                         .padding(4)
                 }
 
-                Animated(Binding(get: { showHint }, set: { showHint = $0 }), with: { _ in .default }) { value in
-                    Text(value ? "On" : "Off")
-                }
+                Animated(
+                    Binding(get: { showHint }, set: { showHint = $0 }),
+                    with: { _ in .default }
+                ) { value in Text(value ? "On" : "Off") }
             }
             .frame(width: 500, height: 500)
         )
@@ -247,12 +240,10 @@ private struct AnimatedStateChangeView: View {
     @State private var value = false
 
     var body: some View {
-        Animated($value, with: { _ in .default }) { value in
-            Text(value ? "Changed" : "Initial")
-        }
-        .onAppear {
-            value = true
-        }
+        Animated($value, with: { _ in .default }) { value in Text(value ? "Changed" : "Initial") }
+            .onAppear {
+                value = true
+            }
     }
 }
 
@@ -262,9 +253,7 @@ private struct DeferredOnAppearView: View {
 
     var body: some View {
         Text("\(actionCount)")
-            .onAppear(isConnected: { connected }) {
-                actionCount += 1
-            }
+            .onAppear(isConnected: { connected }) { actionCount += 1 }
             .onAppear {
                 connected = true
             }
@@ -378,9 +367,7 @@ struct SwiftUIExIOSRenderingSmokeTests {
             DemoRenderItem(id: 2, title: "Two"),
             DemoRenderItem(id: 3, title: "Three")
         ]
-        let selection = Binding<DemoRenderItem?>(get: {
-            items[1]
-        }, set: { _ in })
+        let selection = Binding<DemoRenderItem?>(get: { items[1] }, set: { _ in })
 
         render(
             ZStack {
@@ -397,10 +384,8 @@ struct SwiftUIExIOSRenderingSmokeTests {
                 NavigationRow(LocalizedStringKey("Localized")) {}
                     .frame(height: 44)
 
-                NavigationRow(action: {}, label: {
-                    Text("Closure")
-                })
-                .frame(height: 44)
+                NavigationRow(action: {}) { Text("Closure") }
+                    .frame(height: 44)
 
                 DetailContainerView {
                     Text("Detail")
@@ -426,20 +411,17 @@ struct SwiftUIExIOSRenderingSmokeTests {
                     rowSpacing: 6
                 )
 
-                HCollection<RenderCell>(
-                    content: items,
-                    selection: selection,
-                    spacing: 5
-                )
+                HCollection<RenderCell>(content: items, selection: selection, spacing: 5)
 
                 WrappingHStack(items) { item in
                     Text(item.title)
                         .padding(4)
                 }
 
-                Animated(Binding(get: { showHint }, set: { showHint = $0 }), with: { _ in .default }) { value in
-                    Text(value ? "On" : "Off")
-                }
+                Animated(
+                    Binding(get: { showHint }, set: { showHint = $0 }),
+                    with: { _ in .default }
+                ) { value in Text(value ? "On" : "Off") }
             }
             .frame(width: 500, height: 500)
         )
@@ -584,12 +566,10 @@ private struct AnimatedStateChangeView: View {
     @State private var value = false
 
     var body: some View {
-        Animated($value, with: { _ in .default }) { value in
-            Text(value ? "Changed" : "Initial")
-        }
-        .onAppear {
-            value = true
-        }
+        Animated($value, with: { _ in .default }) { value in Text(value ? "Changed" : "Initial") }
+            .onAppear {
+                value = true
+            }
     }
 }
 
@@ -599,9 +579,7 @@ private struct DeferredOnAppearView: View {
 
     var body: some View {
         Text("\(actionCount)")
-            .onAppear(isConnected: { connected }) {
-                actionCount += 1
-            }
+            .onAppear(isConnected: { connected }) { actionCount += 1 }
             .onAppear {
                 connected = true
             }

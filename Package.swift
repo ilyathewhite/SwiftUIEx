@@ -9,14 +9,8 @@ let package = Package(
         .macOS("15.0"), .iOS("16.0"), .tvOS(.v14)
     ],
     products: [
-        .library(
-            name: "SwiftUIEx",
-            targets: ["SwiftUIEx"]
-        ),
-        .library(
-            name: "SwiftUIExTesting",
-            targets: ["SwiftUIExTesting"]
-        )
+        .library(name: "SwiftUIEx", targets: ["SwiftUIEx"]),
+        .library(name: "SwiftUIExTesting", targets: ["SwiftUIExTesting"])
     ],
     dependencies: [
         .package(url: "https://github.com/pointfreeco/swift-tagged.git", from: "0.10.0"),

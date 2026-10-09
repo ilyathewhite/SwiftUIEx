@@ -99,7 +99,7 @@ public struct WrappingHStack<Data, Cell>: View where Data: RandomAccessCollectio
         for elem in dataContent {
             // inefficient, but most flexible and should not be a problem for a small collection
             // that WrappingHStack is meant to display.
-            if !data.contains(where: {$0.id == elem.id }) {
+            if !data.contains(where: { $0.id == elem.id }) {
                 data.append(elem)
             }
             else {
@@ -134,7 +134,7 @@ private struct WrappingHStackPreview: View {
     }
 
     static let strings = [
-        "#viral",  "#share", "#youtubekids", "#subscribers", "#trending",
+        "#viral", "#share", "#youtubekids", "#subscribers", "#trending",
         "#comment", "#followforfollowback", "youtubemusic", "#contentcreator", "#explore",
         "#music", "#follow"
     ]

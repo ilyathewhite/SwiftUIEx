@@ -9,10 +9,7 @@ public final class EventGenerator {
         view: Content,
         accessibilityDelay: TimeInterval = 0.11
     ) async throws {
-        self.backend = try await PlatformEventGenerator(
-            view: view,
-            accessibilityDelay: accessibilityDelay
-        )
+        self.backend = try await PlatformEventGenerator(view: view, accessibilityDelay: accessibilityDelay)
     }
 
     public func fingerTap(at accessibilityIdentifier: String) throws {
@@ -95,7 +92,8 @@ private final class PlatformEventGenerator {
             window.makeKeyAndVisible()
             self.window = window
             self.eventGenerator = try Hammer.EventGenerator(window: window)
-        } else {
+        }
+        else {
             self.window = nil
             self.eventGenerator = try Hammer.EventGenerator(viewController: hostingController)
         }

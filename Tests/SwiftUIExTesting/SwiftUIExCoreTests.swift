@@ -106,10 +106,7 @@ struct SwiftUIExCoreTests {
     func explicitAnimationModifiersExposeAnimatableValues() {
         let opacity = OpacityModifierProvider.modifier(value: 0.4)
         let rotation = ZRotationModifierProvider.modifier(value: 1.5)
-        var triggerModifier = AnimatedOpacityTriggerModifier(
-            trigger: .init(),
-            progressEvaluator: .zero_one_zero_sin
-        )
+        var triggerModifier = AnimatedOpacityTriggerModifier(trigger: .init(), progressEvaluator: .zero_one_zero_sin)
 
         triggerModifier.animatableData = 2.75
 
@@ -760,9 +757,11 @@ private func throwsMissingIdentifier(_ operation: () throws -> Void) -> Bool {
     do {
         try operation()
         return false
-    } catch TestKit.TestingError.missingViewWithAccessibilityIdentifier("missing") {
+    }
+    catch TestKit.TestingError.missingViewWithAccessibilityIdentifier("missing") {
         return true
-    } catch {
+    }
+    catch {
         return false
     }
 }

@@ -24,10 +24,7 @@ public struct AccentColorSelection: ViewModifier {
     public func body(content: Content) -> some View {
         content
             .foregroundColor(isSelected ? systemBackgroundColor : nil)
-            .roundedRectBackground(
-                fillColor: isSelected ? .accentColor : .clear,
-                cornerRadius: .value(cornerRadius)
-            )
+            .roundedRectBackground(fillColor: isSelected ? .accentColor : .clear, cornerRadius: .value(cornerRadius))
     }
 }
 
@@ -45,10 +42,7 @@ public struct UnderlineSelection: ViewModifier {
     public func body(content: Content) -> some View {
         content
             .padding(.bottom, thickness)
-            .background(
-                Rectangle().fill(isSelected ? color : .clear).frame(height: thickness),
-                alignment: .bottom
-            )
+            .background(Rectangle().fill(isSelected ? color : .clear).frame(height: thickness), alignment: .bottom)
     }
 }
 

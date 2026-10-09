@@ -12,7 +12,7 @@ public extension View {
         f()
         return self
     }
-    
+
     func topDivider() -> some View {
         overlay(alignment: .top) { Divider() }
     }
@@ -24,7 +24,7 @@ public extension View {
     func dismissKeyboard() {
         UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
-    
+
     func isContextMenuVisible(window: UIWindow?) -> Bool {
         guard let window else { return false }
         for subview in window.subviews {

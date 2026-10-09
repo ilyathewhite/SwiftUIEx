@@ -9,7 +9,7 @@ import SwiftUI
 public struct OnAppearEx: ViewModifier {
     public let isConnected: () -> Bool
     public let action: () -> Void
-    
+
     @State private var pendingOnAppearCount = 0
 
     public func body(content: Content) -> some View {
@@ -51,7 +51,7 @@ private struct OnAppearExPreview: View {
     var body: some View {
         VStack(spacing: 16) {
             Text(appeared ? "Appeared after connecting" : "Waiting for connection")
-                .onAppear(isConnected: { connected }, action: { appeared = true })
+                .onAppear(isConnected: { connected }) { appeared = true }
             ProgressView().opacity(appeared ? 0 : 1)
         }
         .padding()

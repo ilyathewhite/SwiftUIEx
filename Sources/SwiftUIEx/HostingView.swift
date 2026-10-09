@@ -11,16 +11,16 @@ import SwiftUI
 
 public class HostingView<Content>: UIView where Content: View {
     let vc: UIHostingController<Content>
-    
+
     public init(rootView: Content) {
         vc = .init(rootView: rootView)
         super.init(frame: .zero)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     public override func didMoveToWindow() {
         super.didMoveToWindow()
         guard window != nil else { return }
@@ -35,7 +35,7 @@ public class HostingView<Content>: UIView where Content: View {
         view.bottomAnchor.constraint(equalTo: bottomAnchor).isActive = true
     }
 }
-    
+
 #endif
 
 #if DEBUG && os(iOS)

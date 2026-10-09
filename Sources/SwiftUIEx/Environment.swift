@@ -1,6 +1,6 @@
 //
 //  Environment.swift
-//  
+//
 //
 //  Created by Ilya Belenkiy on 9/19/22.
 //
@@ -17,7 +17,5 @@ public enum SwiftUIEx {
     }
 
     @MainActor
-    public static var env = Environment(
-        logCodingError: logError(_:)
-    )
+    public static var env = Environment(logCodingError: logError(_:))
 }

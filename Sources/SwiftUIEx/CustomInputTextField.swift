@@ -26,36 +26,44 @@ private class BasicTextField: UITextField {
 public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable where V.Value == T {
     @Binding var value: T?
     @Binding var typedText: String
-    
+
     let configure: (UITextField) -> Void
     var inputView: () -> V
-    
+
     @Environment(\.foregroundColor) var foregroundColor
 
     public class Coordinator: NSObject, UITextFieldDelegate {
         let parent: CustomInputTextField
         let inputVC: UIHostingController<V>
-        
+
         init(parent: CustomInputTextField) {
             self.parent = parent
             self.inputVC = .init(rootView: parent.inputView())
         }
-        
+
         public func textFieldShouldClear(_ textField: UITextField) -> Bool {
             inputVC.rootView.clear()
             return true
         }
-        
+
         public func textFieldDidChangeSelection(_ textField: UITextField) {
             let newPosition = textField.endOfDocument
             textField.selectedTextRange = textField.textRange(from: newPosition, to: newPosition)
         }
-        
-        public func textField(_ textField: UITextField, editMenuForCharactersIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
+
+        public func textField(
+            _ textField: UITextField,
+            editMenuForCharactersIn range: NSRange,
+            suggestedActions: [UIMenuElement]
+        ) -> UIMenu? {
             return nil
         }
-        
-        public func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+
+        public func textField(
+            _ textField: UITextField,
+            shouldChangeCharactersIn range: NSRange,
+            replacementString string: String
+        ) -> Bool {
             return false
         }
     }
@@ -71,14 +79,14 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
         self.configure = configure
         self.inputView = inputView
     }
-    
+
     public func makeCoordinator() -> Coordinator {
         .init(parent: self)
     }
-    
+
     public func makeUIView(context: Context) -> UITextField {
         let textField = BasicTextField()
-        
+
         textField.delegate = context.coordinator
         textField.setContentHuggingPriority(.defaultHigh, for: .vertical)
         textField.clearButtonMode = .whileEditing
@@ -87,7 +95,7 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
         textField.autocapitalizationType = .none
         textField.inputAssistantItem.leadingBarButtonGroups = []
         textField.inputAssistantItem.trailingBarButtonGroups = []
-        
+
         configure(textField)
 
         let inputView = context.coordinator.inputVC.view!
@@ -97,7 +105,7 @@ public struct CustomInputTextField<T, V: CustomInputView>: UIViewRepresentable w
 
         return textField
     }
-    
+
     public func updateUIView(_ textField: UITextField, context: Context) {
         textField.text = typedText
         textField.textColor = .init(foregroundColor)
